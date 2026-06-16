@@ -1,8 +1,9 @@
 import { Phone, MessageCircle } from "lucide-react";
+import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 
 export function CrContact({
-  crName = "Bhavya",
-  crPhone = "8500780044",
+  crName = CR_FULL_NAME,
+  crPhone = CR_PHONE,
 }: {
   crName?: string;
   crPhone?: string;

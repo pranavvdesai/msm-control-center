@@ -2,12 +2,12 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { SuperheroWelcome } from "@/components/SuperheroWelcome";
+import { WelcomeSplash } from "@/components/WelcomeSplash";
 
 function WelcomeContent() {
   const params = useSearchParams();
-  const name = params.get("name") || "Agent";
-  return <SuperheroWelcome name={name} />;
+  const name = params.get("name") || "there";
+  return <WelcomeSplash name={name} />;
 }
 
 export default function WelcomePage() {

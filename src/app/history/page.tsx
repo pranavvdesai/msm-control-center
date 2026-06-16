@@ -36,7 +36,7 @@ export default function HistoryPage() {
 
       {leaves.length === 0 ? (
         <p className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-zinc-500">
-          No leaves recorded yet. Perfect attendance hero?
+          No leaves recorded yet. Perfect attendance so far.
         </p>
       ) : (
         <div className="space-y-3">

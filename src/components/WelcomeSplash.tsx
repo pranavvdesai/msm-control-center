@@ -48,7 +48,7 @@ export function WelcomeSplash({ name }: { name: string }) {
           transition={{ delay: 0.3 }}
           className="mb-2 text-sm uppercase tracking-[0.5em] text-cyan-400"
         >
-          MSM Protocol Activated
+          MSM Control Center
         </motion.p>
         <motion.h1
           initial={{ y: 40, opacity: 0 }}

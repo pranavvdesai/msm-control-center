@@ -9,7 +9,7 @@ export function RiskMeter({ score }: { score: number }) {
   const config = {
     safe: {
       color: "from-emerald-500 to-cyan-500",
-      label: "Hero Mode",
+      label: "All Clear",
       message: "All is well. Attendance under control.",
       glow: "shadow-emerald-500/20",
     },

@@ -23,6 +23,7 @@ export async function POST() {
   const name = user.name;
   const role = user.rollNumber === "25M136" ? "ADMIN" : "STUDENT";
 
+  await prisma.pushSubscription.deleteMany({ where: { userId: user.id } });
   await prisma.leave.deleteMany({ where: { userId: user.id } });
   await prisma.activityEvent.deleteMany({ where: { userId: user.id } });
   await prisma.user.delete({ where: { id: user.id } });

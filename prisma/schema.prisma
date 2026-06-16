@@ -81,7 +81,7 @@ model ActivityEvent {
 
 model AppSettings {
   id         Int    @id @default(1)
-  crName     String @default("Bhavya")
+  crName     String @default("Tipparaju Venkata Sai Bhavyasri")
   crPhone    String @default("8500780044")
   cohortName String @default("MSM")
   cohortFull String @default("Marketing and Sales Management")

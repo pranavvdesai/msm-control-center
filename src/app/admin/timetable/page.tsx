@@ -16,8 +16,6 @@ export default function AdminTimetablePage() {
     subjects: number;
     termInfo: string;
   } | null>(null);
-  const [calFile, setCalFile] = useState<File | null>(null);
-  const [calLoading, setCalLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -59,28 +57,6 @@ export default function AdminTimetablePage() {
       setMessage(e instanceof Error ? e.message : "Upload failed");
     }
     setLoading(false);
-  }
-
-  async function uploadCalendar() {
-    if (!calFile) {
-      setMessage("Please select an academic calendar file.");
-      return;
-    }
-    setCalLoading(true);
-    setMessage("");
-    const formData = new FormData();
-    formData.append("file", calFile);
-    formData.append("replace", "true");
-    try {
-      const res = await fetch("/api/calendar/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setMessage(`Academic calendar uploaded — ${data.created} entries.`);
-      setCalFile(null);
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Calendar upload failed");
-    }
-    setCalLoading(false);
   }
 
   if (!canUpload) {
@@ -137,7 +113,6 @@ export default function AdminTimetablePage() {
             <li>Subjects with credits (MSM 6400, 6430, 6503, etc.)</li>
             <li>Daily lecture slots (8:45 AM – 8:30 PM)</li>
             <li>Faculty names and G2 classroom venue</li>
-            <li>Internship viva sessions</li>
           </ul>
         </div>
 
@@ -175,25 +150,6 @@ export default function AdminTimetablePage() {
             </p>
           </div>
         )}
-      </div>
-
-      <div className="mt-6 rounded-2xl border border-violet-500/20 bg-violet-500/5 p-6">
-        <h2 className="font-semibold text-white">Upload Academic Calendar</h2>
-        <p className="mt-1 text-sm text-zinc-400">
-          Excel with columns: Date, Type (holiday/event/exam/long weekend), Title, Description
-        </p>
-        <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-black/30 px-6 py-8 transition hover:border-violet-500/40">
-          <p className="text-sm text-zinc-300">{calFile ? calFile.name : "Select academic calendar .xlsx"}</p>
-          <input
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={(e) => setCalFile(e.target.files?.[0] || null)}
-          />
-        </label>
-        <GlowButton className="mt-4 w-full" onClick={uploadCalendar} disabled={calLoading || !calFile}>
-          {calLoading ? "Uploading..." : "Upload Academic Calendar"}
-        </GlowButton>
       </div>
     </NavShell>
   );

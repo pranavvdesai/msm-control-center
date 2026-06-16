@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { GlowButton } from "@/components/GlowButton";
-import { DeveloperBadge } from "@/components/DeveloperBadge";
 import { Cake, Mail } from "lucide-react";
 
 const MONTHS = [
@@ -186,7 +185,6 @@ export default function OnboardingPage() {
           </GlowButton>
         </form>
       </motion.div>
-      <DeveloperBadge />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   normalizeTimetableEntries,
   startOfDay,
 } from "@/lib/utils";
+import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 
 export async function GET() {
   const session = await getSession();
@@ -81,7 +82,13 @@ export async function GET() {
     user: session,
     settings: settings
       ? settings
-      : { crName: "Bhavya", crPhone: "8500780044", cohortName: "MSM", cohortFull: "Marketing and Sales Management", termInfo: "Term 4 · TAPMI Manipal" },
+      : {
+          crName: CR_FULL_NAME,
+          crPhone: CR_PHONE,
+          cohortName: "MSM",
+          cohortFull: "Marketing and Sales Management",
+          termInfo: "Term 4 · TAPMI Manipal",
+        },
     subjectStats,
     todayClasses,
     todayLabel: formatDate(today),

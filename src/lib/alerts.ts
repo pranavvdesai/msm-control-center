@@ -27,7 +27,7 @@ const CRITICAL_MESSAGES = [
 
 const MEME_SAFE = [
   "All is well. Attendance under control.",
-  "Mast hai! Attendance hero mode ON.",
+  "Mast hai! Attendance looking solid.",
   "Faculty still thinks you're the good kid.",
 ];
 
@@ -96,7 +96,7 @@ export function generateSocialFeedMessages(
 
 export function buildLoginFeedMessage(name: string) {
   const templates = [
-    `${name} just entered the MSM Control Center. Cape optional.`,
+    `${name} just entered the MSM Control Center.`,
     `${name} logged in. Attendance anxiety levels recalibrating.`,
     `Welcome back, ${name}. Faculty hasn't noticed yet. Probably.`,
   ];

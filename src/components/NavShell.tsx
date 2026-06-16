@@ -11,16 +11,13 @@ import {
   Upload,
   Shield,
   Cake,
-  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DeveloperBadge } from "./DeveloperBadge";
 
 const navItems = [
   { href: "/dashboard", label: "Home", icon: LayoutDashboard },
   { href: "/leave", label: "Leave", icon: Calendar },
   { href: "/timetable", label: "Timetable", icon: Clock },
-  { href: "/calendar", label: "Academic Cal", icon: CalendarDays },
   { href: "/cake-radar", label: "Cake Radar", icon: Cake },
   { href: "/history", label: "History", icon: History },
   { href: "/admin/timetable", label: "Upload", icon: Upload, uploadOnly: true },
@@ -132,8 +129,6 @@ export function NavShell({
           ))}
         </div>
       </nav>
-
-      <DeveloperBadge />
     </div>
   );
 }

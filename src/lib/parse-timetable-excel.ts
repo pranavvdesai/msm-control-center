@@ -75,13 +75,7 @@ function parseLectureCell(
   }
 
   if (text.toLowerCase().includes("internship") || text.toLowerCase().includes("viva")) {
-    return {
-      subjectCode: "INTERN",
-      subjectName: "Internship Viva Voce",
-      faculty: "Faculty Panel",
-      room: "G2",
-      sessionLabel: text.slice(0, 40),
-    };
+    return null;
   }
 
   return null;

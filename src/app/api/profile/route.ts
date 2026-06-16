@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { sendWelcomeEmailIfNeeded } from "@/lib/welcome";
 
 export async function GET() {
   const session = await getSession();
@@ -43,6 +44,11 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid college email" }, { status: 400 });
     }
 
+    const existing = await prisma.user.findUnique({
+      where: { id: session.id },
+      select: { profileComplete: true },
+    });
+
     const user = await prisma.user.update({
       where: { id: session.id },
       data: {
@@ -68,6 +74,10 @@ export async function PATCH(request: Request) {
         type: "social",
       },
     });
+
+    if (!existing?.profileComplete) {
+      await sendWelcomeEmailIfNeeded(user.id);
+    }
 
     return NextResponse.json({ user });
   } catch {

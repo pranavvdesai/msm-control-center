@@ -21,7 +21,7 @@ function getReplyTo() {
   return process.env.EMAIL_REPLY_TO || "raaaampareek@gmail.com";
 }
 
-function isEmailConfigured() {
+export function isEmailConfigured() {
   return !!(
     (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) ||
     process.env.RESEND_API_KEY
@@ -92,7 +92,7 @@ async function resendSend(
   return { ok: true };
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
+export async function sendEmail(to: string, subject: string, html: string) {
   if (process.env.GMAIL_APP_PASSWORD) {
     const gmail = await gmailSend(to, subject, html);
     if (gmail.ok) return true;
@@ -111,40 +111,59 @@ export async function sendWelcomeEmail(person: WelcomePerson) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://msm-control-center.vercel.app";
   const firstName = person.name.split(" ")[0];
   const subject = `Namaste ${firstName}! Welcome to MSM Control Center 🙏`;
+  const ramImageUrl = `${appUrl}/images/ram-welcome.png`;
+  const whatsappUrl = `https://wa.me/918302854099?text=${encodeURIComponent(
+    "Hello Ram, loved MSM Control Center! Sharing my feedback — "
+  )}`;
 
   const html = `
     <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; background: #030014; color: #f4f4f5; padding: 32px; border-radius: 16px;">
-      <p style="color: #22d3ee; font-size: 12px; letter-spacing: 3px; text-transform: uppercase;">MSM Control Center</p>
-      <h1 style="font-size: 28px; margin: 16px 0;">Namaste, ${person.name}! 🙏</h1>
-      <p style="color: #a1a1aa; line-height: 1.7; font-size: 16px;">
-        Hello from <strong style="color: white;">Ram</strong> — your MSM CR and the builder of this control center.
+      <div style="margin-bottom: 20px; padding: 14px 16px; background: #0a0a1a; border-radius: 12px; border: 1px solid #fbbf2433;">
+        <p style="margin: 0; color: #fbbf24; font-size: 13px; line-height: 1.6;">
+          Hey, thank you for signing up on <strong>MSM Control Center</strong>!
+          This is an automated mail from Ram's personal AI assistant bot — please give it a read. 🤖
+        </p>
+      </div>
+      <img
+        src="${ramImageUrl}"
+        alt="Ram — MSM Control Center"
+        width="200"
+        style="display: block; margin: 0 auto 20px; border-radius: 16px; border: 2px solid #22d3ee33;"
+      />
+      <p style="color: #22d3ee; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; text-align: center;">MSM Control Center</p>
+      <h1 style="font-size: 28px; margin: 16px 0; text-align: center;">Namaste, ${firstName}! 🙏</h1>
+      <p style="color: #d4d4d8; line-height: 1.7; font-size: 16px;">
+        Hello from your MSM friend, <strong style="color: white;">Ram</strong> — builder of this control center.
       </p>
-      <p style="color: #d4d4d8; line-height: 1.7;">
-        I warmly welcome you to the <strong style="color: #22d3ee;">MSM Control Center</strong>.
-        You are officially part of the cohort family. Roll <strong style="color: white;">${person.rollNumber}</strong> — legend status unlocked.
+      <p style="color: #a1a1aa; line-height: 1.7;">
+        Welcome to the <strong style="color: #22d3ee;">MSM Control Center</strong>.
+        You're officially part of the cohort family. Roll <strong style="color: white;">${person.rollNumber}</strong>.
       </p>
       <div style="margin: 24px 0; padding: 16px; background: #0a0a1a; border-radius: 12px; border: 1px solid #22d3ee33;">
         <p style="margin: 0 0 8px; color: #22d3ee; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Inside the control center</p>
         <p style="margin: 0; color: #d4d4d8; line-height: 1.8; font-size: 14px;">
           ✓ Mark leaves on the calendar<br/>
-          ✓ Track attendance risk & leaderboard<br/>
-          ✓ See today's classes & live cohort feed<br/>
-          ✓ Birthday alerts for the whole MSM family
+          ✓ Track attendance risk meter<br/>
+          ✓ See today's classes &amp; live cohort feed<br/>
+          ✓ Birthday alerts via Cake Radar 🎂
         </p>
       </div>
-      <a href="${appUrl}/dashboard" style="display: inline-block; margin: 8px 0 24px; padding: 12px 24px; background: linear-gradient(135deg, #22d3ee, #8b5cf6); color: white; text-decoration: none; border-radius: 12px; font-weight: 600;">
+      <a href="${appUrl}/dashboard" style="display: inline-block; margin: 8px 0 16px; padding: 12px 24px; background: linear-gradient(135deg, #22d3ee, #8b5cf6); color: white; text-decoration: none; border-radius: 12px; font-weight: 600;">
         Enter MSM Control Center →
       </a>
       <p style="color: #71717a; font-size: 14px;">
         Login anytime with your roll number and cohort password.
       </p>
-      <p style="color: #a1a1aa; font-size: 14px; margin-top: 20px;">
-        See you in class,<br/>
-        <strong style="color: white;">Ram</strong><br/>
-        <span style="color: #71717a;">CR · MSM · TAPMI</span>
-      </p>
+      <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid #ffffff15;">
+        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 12px;">
+          Loved it? Share feedback directly with Ram on WhatsApp:
+        </p>
+        <a href="${whatsappUrl}" style="display: inline-block; padding: 12px 24px; background: #25D366; color: white; text-decoration: none; border-radius: 12px; font-weight: 600;">
+          💬 WhatsApp Ram
+        </a>
+      </div>
       <p style="color: #52525b; font-size: 11px; margin-top: 32px;">
-        Developed by Raam — Naam toh suna hoga !!
+        MSM Control Center · TAPMI Manipal · Term 4
       </p>
     </div>
   `;
@@ -171,15 +190,14 @@ export async function sendBirthdayEmails(
   const subject =
     birthdayPeople.length === 1
       ? `🎂 Happy Birthday ${birthdayPeople[0].name}! — MSM Control Center`
-      : `🎂 Birthday Alert! ${birthdayPeople.length} MSM heroes celebrate today`;
+      : `🎂 Birthday Alert! ${birthdayPeople.length} MSM friends celebrate today`;
 
   const html = `
     <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; background: #030014; color: #f4f4f5; padding: 32px; border-radius: 16px;">
       <p style="color: #22d3ee; font-size: 12px; letter-spacing: 3px; text-transform: uppercase;">MSM Control Center</p>
       <h1 style="font-size: 28px; margin: 16px 0;">🎉 Birthday Celebration!</h1>
       <p style="color: #a1a1aa; line-height: 1.6;">
-        Today the MSM cohort celebrates <strong style="color: white;">${names}</strong>
-        ${birthdayPeople.length === 1 ? "" : " — our birthday heroes!"}
+        Today the MSM cohort celebrates <strong style="color: white;">${names}</strong>.
       </p>
       <p style="color: #71717a; font-size: 14px;">Roll: ${rolls}</p>
       <div style="margin: 24px 0; padding: 16px; background: #0a0a1a; border-radius: 12px; border: 1px solid #22d3ee33;">
@@ -191,7 +209,7 @@ export async function sendBirthdayEmails(
         Wish them in class, buy them chai, and remind them attendance still counts. 😄
       </p>
       <p style="color: #52525b; font-size: 11px; margin-top: 32px;">
-        Developed by Raam — Naam toh suna hoga !!
+        MSM Control Center · TAPMI Manipal
       </p>
     </div>
   `;

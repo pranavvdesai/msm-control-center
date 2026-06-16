@@ -8,6 +8,8 @@ import { SocialFeed } from "@/components/SocialFeed";
 import { RiskMeter } from "@/components/RiskMeter";
 import { CrContact } from "@/components/CrContact";
 import { ClassReminderBanner } from "@/components/ClassReminderBanner";
+import { WeeklyLeaveReminderBanner } from "@/components/WeeklyLeaveReminderBanner";
+import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { RefreshCw } from "lucide-react";
 
 type DashboardData = {
@@ -94,11 +96,14 @@ export default function DashboardPage() {
           {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
         </p>
         <h1 className="mt-2 text-2xl font-black text-white md:text-4xl">
-          MSM Control Center — CR: {data.settings?.crName || "Bhavya"}
+          MSM Control Center
         </h1>
+        <p className="mt-1 text-sm text-cyan-300/90">
+          CR: {data.settings?.crName || CR_FULL_NAME}
+        </p>
         <CrContact
-          crName={data.settings?.crName || "Bhavya"}
-          crPhone={data.settings?.crPhone || "8500780044"}
+          crName={data.settings?.crName || CR_FULL_NAME}
+          crPhone={data.settings?.crPhone || CR_PHONE}
         />
         <p className="mt-3 text-zinc-400">
           Welcome back, <span className="font-semibold text-white">{data.user.name}</span>.
@@ -110,6 +115,10 @@ export default function DashboardPage() {
           <Badge label="Subjects tracked" value={data.subjectStats.length} color="cyan" />
         </div>
       </motion.section>
+
+      <div className="mb-6">
+        <WeeklyLeaveReminderBanner />
+      </div>
 
       <div className="mb-6">
         <ClassReminderBanner unmarkedCount={data.unmarkedEndedClasses} />

@@ -33,9 +33,10 @@ async function main() {
 
   await prisma.appSettings.upsert({
     where: { id: 1 },
-    update: { crName: "Raam (25M136)" },
+    update: { crName: "Tipparaju Venkata Sai Bhavyasri", crPhone: "8500780044" },
     create: {
-      crName: "Raam (25M136)",
+      crName: "Tipparaju Venkata Sai Bhavyasri",
+      crPhone: "8500780044",
       cohortName: "MSM",
       cohortFull: "Marketing and Sales Management",
       termInfo: "Term 4 · June 15 – Sep 23, 2026 · TAPMI Manipal",

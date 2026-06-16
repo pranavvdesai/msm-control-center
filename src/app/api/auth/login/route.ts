@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createSession, verifyPassword } from "@/lib/auth";
 import { buildLoginFeedMessage } from "@/lib/alerts";
+import { sendWelcomeEmailIfNeeded } from "@/lib/welcome";
 
 export async function POST(request: Request) {
   try {
@@ -40,6 +41,10 @@ export async function POST(request: Request) {
         type: "login",
       },
     });
+
+    if (user.profileComplete && user.collegeEmail) {
+      await sendWelcomeEmailIfNeeded(user.id);
+    }
 
     return NextResponse.json({
       user: {
