@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { buildLeaveFeedMessage, buildClassmateAlert } from "@/lib/alerts";
+import { sendOneLeaveLeftAlertIfNeeded } from "@/lib/attendance-alert-email";
 import { endOfDay, normalizeTimetableEntries, startOfDay } from "@/lib/utils";
 import { maxLeavesForCredits } from "@/lib/utils";
 import { isExcludedSubject } from "@/lib/subjects";
@@ -109,6 +110,13 @@ export async function POST(request: Request) {
           },
         });
       }
+
+      await sendOneLeaveLeftAlertIfNeeded(
+        session.id,
+        entry.subjectId,
+        entry.subject.name,
+        entry.subject.credits
+      );
     }
 
     return NextResponse.json({ leave });

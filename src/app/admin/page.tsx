@@ -101,8 +101,8 @@ export default function AdminPage() {
     },
     {
       type: "alert",
-      title: "Test daily alert mail",
-      description: "Evening reminder: did you miss any class? Record your leave now.",
+      title: "Test 1-leave-left alert",
+      description: "Sample attendance warning when only 1 regular leave remains in a subject.",
       icon: Bell,
     },
   ];

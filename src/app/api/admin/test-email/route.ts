@@ -13,10 +13,7 @@ import {
   weeklyLeaveReportEmailHtml,
   WEEKLY_LEAVE_REPORT_SUBJECT,
 } from "@/lib/weekly-leave-report";
-import {
-  CLASS_REMINDER_EMAIL_SUBJECT,
-  classReminderEmailHtml,
-} from "@/lib/class-reminder";
+import { sendTestAttendanceAlertEmail } from "@/lib/attendance-alert-email";
 
 const VALID_TYPES = new Set(["welcome", "birthday", "weekly", "alert"]);
 
@@ -108,14 +105,13 @@ export async function POST(request: Request) {
     }
 
     if (type === "alert") {
-      const html = classReminderEmailHtml(firstName, appUrl);
-      const sent = await sendEmail(to, `[TEST] ${CLASS_REMINDER_EMAIL_SUBJECT}`, html);
+      const sent = await sendTestAttendanceAlertEmail(to, firstName, "[TEST] ");
       if (!sent) {
         return NextResponse.json({ error: "Alert test email failed to send." }, { status: 500 });
       }
       return NextResponse.json({
         ok: true,
-        message: `Daily alert test email sent to ${to}`,
+        message: `1-leave-left alert test sent to ${to}`,
       });
     }
 
