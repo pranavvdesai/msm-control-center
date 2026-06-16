@@ -9,8 +9,30 @@ export function maxLeavesForCredits(credits: number) {
   return credits;
 }
 
+const IST = "Asia/Kolkata";
+
+function istCalendarParts(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: IST,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(date);
+  return {
+    year: parseInt(parts.find((p) => p.type === "year")?.value || "1970", 10),
+    month: parseInt(parts.find((p) => p.type === "month")?.value || "1", 10),
+    day: parseInt(parts.find((p) => p.type === "day")?.value || "1", 10),
+  };
+}
+
+function istDayString(date: Date | string) {
+  const { year, month, day } = istCalendarParts(new Date(date));
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
 export function formatDate(date: Date | string) {
   return new Date(date).toLocaleDateString("en-IN", {
+    timeZone: IST,
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -24,15 +46,13 @@ export function toDateKey(date: Date | string) {
 }
 
 export function startOfDay(date: Date | string) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  const day = istDayString(date);
+  return new Date(`${day}T00:00:00+05:30`);
 }
 
 export function endOfDay(date: Date | string) {
-  const d = new Date(date);
-  d.setHours(23, 59, 59, 999);
-  return d;
+  const day = istDayString(date);
+  return new Date(`${day}T23:59:59.999+05:30`);
 }
 
 /** TAPMI Excel slots: 8–11 AM, 12 noon, 1–7 PM when AM/PM omitted; 13–23 = 24h */
@@ -160,4 +180,9 @@ export function toLocalDateKey(date: Date | string): string {
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+
+/** YYYY-MM-DD for the calendar day in IST (India) */
+export function toIstDateKey(date: Date | string = new Date()) {
+  return istDayString(date);
 }

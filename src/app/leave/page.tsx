@@ -5,7 +5,7 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { NavShell } from "@/components/NavShell";
 import { GlowButton } from "@/components/GlowButton";
-import { formatDate, formatClassTimeRange } from "@/lib/utils";
+import { formatDate, formatClassTimeRange, toIstDateKey } from "@/lib/utils";
 
 type Lecture = {
   id: string;
@@ -33,7 +33,7 @@ export default function LeavePage() {
 
   useEffect(() => {
     if (!selectedDate) return;
-    const dateStr = selectedDate.toISOString().slice(0, 10);
+    const dateStr = toIstDateKey(selectedDate);
     fetch(`/api/leaves?date=${dateStr}`)
       .then((r) => r.json())
       .then((d) => {
