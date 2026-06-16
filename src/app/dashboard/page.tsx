@@ -7,7 +7,6 @@ import { SubjectCard } from "@/components/SubjectCard";
 import { SocialFeed } from "@/components/SocialFeed";
 import { RiskMeter } from "@/components/RiskMeter";
 import { CrContact } from "@/components/CrContact";
-import { WeeklyLeaveReminderBanner } from "@/components/WeeklyLeaveReminderBanner";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { formatClassTimeRange } from "@/lib/utils";
 import { RefreshCw } from "lucide-react";
@@ -142,10 +141,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </motion.section>
-
-      <div className="mb-6">
-        <WeeklyLeaveReminderBanner />
-      </div>
 
       <div className="mb-6 rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-[#0a0a1a] to-cyan-500/5 p-5">
         <p className="text-sm leading-relaxed text-zinc-300">
