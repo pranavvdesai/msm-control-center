@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MSM Control Center
 
-## Getting Started
+**Private attendance intelligence for TAPMI MSM cohort**
 
-First, run the development server:
+Developed by **Raam** — Naam toh suna hoga !!
+
+## Live Features
+
+- Cinematic superhero login & welcome animation
+- Smart leave tracking (3/2/1 credit = 3/2/1 leaves)
+- Calendar → lecture → Regular / Condoned leave flow
+- Attendance risk meter + gamified Bollywood meme alerts
+- Live class social feed
+- Class leaderboard
+- Excel timetable upload (TERM 4 MBA-MKT TT.xlsx)
+- Mobile PWA with bottom navigation
+- Supabase PostgreSQL production ready
+
+## Quick Start (Local)
 
 ```bash
+npm install
+npm run db:setup:local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**http://localhost:3000** · `raam@msm.cohort` / `msm2026`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy to Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See **[DEPLOY.md](./DEPLOY.md)** for Supabase + GitHub + Vercel setup.
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 15 · Prisma · Supabase · Tailwind · Framer Motion

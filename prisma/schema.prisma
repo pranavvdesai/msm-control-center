@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String          @id @default(cuid())
+  name         String
+  email        String          @unique
+  passwordHash String
+  role         String          @default("STUDENT")
+  avatar       String?
+  createdAt    DateTime        @default(now())
+  leaves       Leave[]
+  activities   ActivityEvent[]
+}
+
+model Subject {
+  id               String           @id @default(cuid())
+  name             String
+  code             String           @unique
+  credits          Int
+  faculty          String?
+  leaves           Leave[]
+  timetableEntries TimetableEntry[]
+}
+
+model TimetableEntry {
+  id        String   @id @default(cuid())
+  date      DateTime
+  startTime String
+  endTime   String
+  room      String?
+  faculty   String?
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  leaves    Leave[]
+
+  @@index([date])
+}
+
+model Leave {
+  id               String          @id @default(cuid())
+  userId           String
+  subjectId        String
+  timetableEntryId String?
+  date             DateTime
+  type             String
+  reason           String?
+  createdAt        DateTime        @default(now())
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject          Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  timetableEntry   TimetableEntry? @relation(fields: [timetableEntryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
+  @@index([subjectId])
+}
+
+model ActivityEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  message   String
+  type      String   @default("social")
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+}
+
+model AppSettings {
+  id         Int    @id @default(1)
+  crName     String @default("Raam")
+  cohortName String @default("MSM")
+  cohortFull String @default("Marketing and Sales Management")
+  termInfo   String @default("Term 4 · TAPMI Manipal")
+}
