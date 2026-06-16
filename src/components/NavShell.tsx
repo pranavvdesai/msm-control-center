@@ -10,6 +10,8 @@ import {
   LogOut,
   Upload,
   Shield,
+  Cake,
+  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DeveloperBadge } from "./DeveloperBadge";
@@ -17,27 +19,36 @@ import { DeveloperBadge } from "./DeveloperBadge";
 const navItems = [
   { href: "/dashboard", label: "Home", icon: LayoutDashboard },
   { href: "/leave", label: "Leave", icon: Calendar },
-  { href: "/timetable", label: "Schedule", icon: Clock },
+  { href: "/timetable", label: "Timetable", icon: Clock },
+  { href: "/calendar", label: "Academic Cal", icon: CalendarDays },
+  { href: "/cake-radar", label: "Cake Radar", icon: Cake },
   { href: "/history", label: "History", icon: History },
-  { href: "/admin/timetable", label: "Upload", icon: Upload, admin: true },
+  { href: "/admin/timetable", label: "Upload", icon: Upload, uploadOnly: true },
 ];
 
 export function NavShell({
   children,
   userName,
+  canUpload,
   isAdmin,
 }: {
   children: React.ReactNode;
   userName?: string;
+  canUpload?: boolean;
   isAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const showUpload = !!(canUpload || isAdmin);
 
   async function logout() {
     await fetch("/api/auth/login", { method: "DELETE" });
     router.push("/login");
   }
+
+  const visibleNav = navItems.filter(
+    (item) => !("uploadOnly" in item && item.uploadOnly) || showUpload
+  );
 
   return (
     <div className="relative min-h-screen bg-[#030014] text-zinc-100">
@@ -70,7 +81,6 @@ export function NavShell({
           {userName && (
             <div className="flex items-center gap-2">
               <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1 sm:block">
-                <span className="text-xs text-zinc-400">Agent </span>
                 <span className="text-xs font-semibold text-white">{userName}</span>
               </div>
               <button
@@ -84,46 +94,42 @@ export function NavShell({
           )}
         </div>
 
-        <nav className="mx-auto hidden max-w-6xl gap-1 px-4 pb-3 md:flex">
-          {navItems
-            .filter((item) => !item.admin || isAdmin)
-            .map(({ href, label, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition",
-                  pathname === href
-                    ? "bg-gradient-to-r from-cyan-500/20 to-violet-500/20 text-cyan-300 ring-1 ring-cyan-500/30"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </Link>
-            ))}
+        <nav className="mx-auto hidden max-w-6xl gap-1 overflow-x-auto px-4 pb-3 md:flex">
+          {visibleNav.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition",
+                pathname === href
+                  ? "bg-gradient-to-r from-cyan-500/20 to-violet-500/20 text-cyan-300 ring-1 ring-cyan-500/30"
+                  : "text-zinc-400 hover:bg-white/5 hover:text-white"
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </Link>
+          ))}
         </nav>
       </header>
 
       <main className="relative mx-auto max-w-6xl px-4 py-6 pb-28 md:pb-20">{children}</main>
 
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-[#030014]/95 backdrop-blur-2xl md:hidden">
-        <div className="flex justify-around px-2 py-2">
-          {navItems
-            .filter((item) => !item.admin || isAdmin)
-            .map(({ href, label, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[10px] transition",
-                  pathname === href ? "text-cyan-400" : "text-zinc-500"
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                {label}
-              </Link>
-            ))}
+        <div className="flex justify-around overflow-x-auto px-1 py-2">
+          {visibleNav.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex min-w-[3.5rem] flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[9px] transition",
+                pathname === href ? "text-cyan-400" : "text-zinc-500"
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {label}
+            </Link>
+          ))}
         </div>
       </nav>
 

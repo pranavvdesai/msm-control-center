@@ -3,20 +3,28 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id           String          @id @default(cuid())
-  name         String
-  email        String          @unique
-  passwordHash String
-  role         String          @default("STUDENT")
-  avatar       String?
-  createdAt    DateTime        @default(now())
-  leaves       Leave[]
-  activities   ActivityEvent[]
+  id                String             @id @default(cuid())
+  name              String
+  email             String             @unique
+  rollNumber        String             @unique
+  passwordHash      String
+  role              String             @default("STUDENT")
+  collegeEmail      String?
+  birthday          DateTime?
+  profileComplete   Boolean            @default(false)
+  welcomeEmailSent  Boolean            @default(false)
+  remindersEnabled  Boolean            @default(false)
+  avatar            String?
+  createdAt         DateTime           @default(now())
+  leaves            Leave[]
+  activities        ActivityEvent[]
+  pushSubscriptions PushSubscription[]
 }
 
 model Subject {
@@ -73,8 +81,34 @@ model ActivityEvent {
 
 model AppSettings {
   id         Int    @id @default(1)
-  crName     String @default("Raam")
+  crName     String @default("Bhavya")
+  crPhone    String @default("8500780044")
   cohortName String @default("MSM")
   cohortFull String @default("Marketing and Sales Management")
   termInfo   String @default("Term 4 · TAPMI Manipal")
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  date        DateTime
+  type        String
+  title       String
+  description String?
+  term        String?
+  createdAt   DateTime @default(now())
+
+  @@index([date])
+  @@index([type])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

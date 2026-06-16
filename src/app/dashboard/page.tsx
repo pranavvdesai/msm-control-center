@@ -5,13 +5,14 @@ import { motion } from "framer-motion";
 import { NavShell } from "@/components/NavShell";
 import { SubjectCard } from "@/components/SubjectCard";
 import { SocialFeed } from "@/components/SocialFeed";
-import { Leaderboard } from "@/components/Leaderboard";
 import { RiskMeter } from "@/components/RiskMeter";
+import { CrContact } from "@/components/CrContact";
+import { ClassReminderBanner } from "@/components/ClassReminderBanner";
 import { RefreshCw } from "lucide-react";
 
 type DashboardData = {
   user: { name: string; role: string };
-  settings: { crName: string; cohortName: string; cohortFull: string; termInfo?: string } | null;
+  settings: { crName: string; crPhone?: string; cohortName: string; cohortFull: string; termInfo?: string } | null;
   subjectStats: Array<{
     subjectName: string;
     credits: number;
@@ -30,35 +31,20 @@ type DashboardData = {
     faculty: string | null;
     subject: { name: string; code: string };
   }>;
+  todayLabel: string;
+  unmarkedEndedClasses: number;
+  remindersEnabled: boolean;
   feed: Array<{ id: string; message: string; type: string; createdAt: string }>;
   summary: { totalRegular: number; totalCondoned: number; riskScore: number };
 };
 
-type LeaderboardData = {
-  leaderboard: Array<{
-    id: string;
-    name: string;
-    rank: number;
-    attendanceScore: number;
-    regular: number;
-    condoned: number;
-    isYou: boolean;
-  }>;
-  cohortStats: { totalStudents: number; leavesToday: number; totalRegular: number };
-};
-
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardData | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    const [dash, lb] = await Promise.all([
-      fetch("/api/dashboard").then((r) => r.json()),
-      fetch("/api/leaderboard").then((r) => r.json()),
-    ]);
+    const dash = await fetch("/api/dashboard").then((r) => r.json());
     setData(dash);
-    setLeaderboard(lb);
     setRefreshing(false);
   }, []);
 
@@ -108,10 +94,14 @@ export default function DashboardPage() {
           {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
         </p>
         <h1 className="mt-2 text-2xl font-black text-white md:text-4xl">
-          MSM Control Center — CR: {data.settings?.crName || "Raam"}
+          MSM Control Center — CR: {data.settings?.crName || "Bhavya"}
         </h1>
-        <p className="mt-2 text-zinc-400">
-          Welcome back, <span className="text-white font-semibold">{data.user.name}</span>.
+        <CrContact
+          crName={data.settings?.crName || "Bhavya"}
+          crPhone={data.settings?.crPhone || "8500780044"}
+        />
+        <p className="mt-3 text-zinc-400">
+          Welcome back, <span className="font-semibold text-white">{data.user.name}</span>.
           Your attendance radar is live.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
@@ -121,20 +111,24 @@ export default function DashboardPage() {
         </div>
       </motion.section>
 
-      <div className="mb-6 grid gap-4 md:grid-cols-2">
+      <div className="mb-6">
+        <ClassReminderBanner unmarkedCount={data.unmarkedEndedClasses} />
+      </div>
+
+      <div className="mb-6">
         <RiskMeter score={data.summary.riskScore} />
-        {leaderboard && (
-          <Leaderboard entries={leaderboard.leaderboard} stats={leaderboard.cohortStats} />
-        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <section>
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-              Today&apos;s Classes
-            </h2>
+            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                Today&apos;s Classes
+              </h2>
+              <p className="text-sm text-cyan-300/80">{data.todayLabel}</p>
+            </div>
             {data.todayClasses.length === 0 ? (
               <p className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-zinc-500">
                 No classes today. Faculty thinks you&apos;re still sleeping.
@@ -147,17 +141,20 @@ export default function DashboardPage() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3 transition hover:border-cyan-500/20"
+                    className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 transition hover:border-cyan-500/20"
                   >
-                    <div>
-                      <p className="font-medium text-white">{c.subject.name}</p>
-                      <p className="text-xs text-zinc-500">
-                        {c.startTime} – {c.endTime} · {c.room || "G2"} · {c.faculty || "Faculty"}
-                      </p>
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="font-medium text-white">{c.subject.name}</p>
+                        <p className="mt-1 text-xs font-medium text-cyan-400">{c.subject.code}</p>
+                      </div>
+                      <span className="rounded-full bg-violet-500/20 px-2.5 py-0.5 text-xs text-violet-200">
+                        {c.startTime} – {c.endTime}
+                      </span>
                     </div>
-                    <span className="rounded-full bg-cyan-500/20 px-2.5 py-0.5 text-xs font-medium text-cyan-300">
-                      {c.subject.code}
-                    </span>
+                    <p className="mt-2 text-xs text-zinc-500">
+                      Prof. {c.faculty || "TBA"} · {c.room || "G2"}
+                    </p>
                   </motion.div>
                 ))}
               </div>

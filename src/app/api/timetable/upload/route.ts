@@ -46,13 +46,11 @@ export async function POST(request: Request) {
         update: {
           name: subject.name,
           credits: subject.credits,
-          faculty: subject.faculty,
         },
         create: {
           code: subject.code,
           name: subject.name,
           credits: subject.credits,
-          faculty: subject.faculty,
         },
       });
       subjectsCreated++;

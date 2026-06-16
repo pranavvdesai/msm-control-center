@@ -1,32 +1,36 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import {
-  createSession,
-  verifyPassword,
-} from "@/lib/auth";
+import { createSession, verifyPassword } from "@/lib/auth";
 import { buildLoginFeedMessage } from "@/lib/alerts";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { rollNumber, password } = await request.json();
 
-    if (!email || !password) {
+    if (!rollNumber || !password) {
       return NextResponse.json(
-        { error: "Email and password required" },
+        { error: "Roll number and password required" },
         { status: 400 }
       );
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const roll = String(rollNumber).trim().toUpperCase();
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ rollNumber: roll }, { email: roll.toLowerCase() }],
+      },
+    });
+
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid roll number or password" }, { status: 401 });
     }
 
     await createSession({
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: user.role as "ADMIN" | "STUDENT",
     });
 
     await prisma.activityEvent.create({
@@ -38,7 +42,13 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: {
+        id: user.id,
+        name: user.name,
+        rollNumber: user.rollNumber,
+        role: user.role,
+        profileComplete: user.profileComplete,
+      },
     });
   } catch {
     return NextResponse.json({ error: "Login failed" }, { status: 500 });

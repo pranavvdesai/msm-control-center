@@ -16,6 +16,9 @@ export async function middleware(request: NextRequest) {
     publicPaths.some((p) => pathname.startsWith(p)) ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
+    pathname.startsWith("/icons") ||
+    pathname.startsWith("/images") ||
+    pathname === "/sw.js" ||
     pathname === "/manifest.json"
   ) {
     return NextResponse.next();
@@ -42,5 +45,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|icons|manifest.json).*)"],
+  matcher: ["/((?!_next/static|_next/image|icons|images|sw.js|manifest.json).*)"],
 };

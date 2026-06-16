@@ -46,25 +46,10 @@ function parseDate(value: string): string | null {
   const trimmed = String(value).trim();
   if (!trimmed) return null;
 
-  const dmyMatch = trimmed.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
-  if (dmyMatch) {
-    const months: Record<string, number> = {
-      Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6,
-      Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12,
-    };
-    const day = parseInt(dmyMatch[1], 10);
-    const month = months[dmyMatch[2]];
-    const year = parseInt(dmyMatch[3], 10);
-    if (!month) return null;
-    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  }
-
   const parsed = new Date(trimmed);
   if (isNaN(parsed.getTime())) return null;
-  const y = parsed.getFullYear();
-  const m = String(parsed.getMonth() + 1).padStart(2, "0");
-  const d = String(parsed.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+
+  return parsed.toISOString().slice(0, 10);
 }
 
 function parseLectureCell(

@@ -6,10 +6,9 @@ import { GlowButton } from "@/components/GlowButton";
 import { Upload, FileSpreadsheet, CheckCircle } from "lucide-react";
 
 export default function AdminTimetablePage() {
-  const [crName, setCrName] = useState("");
   const [message, setMessage] = useState("");
   const [userName, setUserName] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [canUpload, setCanUpload] = useState(false);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [uploadResult, setUploadResult] = useState<{
@@ -17,17 +16,16 @@ export default function AdminTimetablePage() {
     subjects: number;
     termInfo: string;
   } | null>(null);
+  const [calFile, setCalFile] = useState<File | null>(null);
+  const [calLoading, setCalLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((d) => {
         setUserName(d.user?.name || "");
-        setIsAdmin(d.user?.role === "ADMIN");
+        setCanUpload(!!d.user?.canUpload);
       });
-    fetch("/api/settings")
-      .then((r) => r.json())
-      .then((d) => setCrName(d.settings?.crName || ""));
   }, []);
 
   async function uploadExcel() {
@@ -63,44 +61,43 @@ export default function AdminTimetablePage() {
     setLoading(false);
   }
 
-  async function saveCrName() {
-    const res = await fetch("/api/settings", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ crName }),
-    });
-    if (res.ok) setMessage("CR name updated.");
+  async function uploadCalendar() {
+    if (!calFile) {
+      setMessage("Please select an academic calendar file.");
+      return;
+    }
+    setCalLoading(true);
+    setMessage("");
+    const formData = new FormData();
+    formData.append("file", calFile);
+    formData.append("replace", "true");
+    try {
+      const res = await fetch("/api/calendar/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setMessage(`Academic calendar uploaded — ${data.created} entries.`);
+      setCalFile(null);
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Calendar upload failed");
+    }
+    setCalLoading(false);
   }
 
-  if (!isAdmin) {
+  if (!canUpload) {
     return (
       <NavShell userName={userName}>
-        <p className="text-red-400">Admin access only. Contact CR for timetable uploads.</p>
+        <p className="text-red-400">Upload access is restricted to Ram and Bhavya only.</p>
       </NavShell>
     );
   }
 
   return (
-    <NavShell userName={userName} isAdmin>
+    <NavShell userName={userName} canUpload>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">Timetable Upload</h1>
         <p className="text-zinc-400">
           Upload your Term 4 Excel timetable (e.g. TERM 4 MBA-MKT TT.xlsx)
         </p>
-      </div>
-
-      <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-        <label className="block text-sm text-zinc-400">Class Representative Name</label>
-        <div className="mt-2 flex gap-2">
-          <input
-            value={crName}
-            onChange={(e) => setCrName(e.target.value)}
-            className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-          />
-          <GlowButton onClick={saveCrName} variant="secondary">
-            Save CR
-          </GlowButton>
-        </div>
       </div>
 
       <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-6">
@@ -155,7 +152,9 @@ export default function AdminTimetablePage() {
         {message && (
           <p
             className={`mt-3 text-sm ${
-              message.startsWith("Success") ? "text-emerald-400" : "text-cyan-300"
+              message.startsWith("Success") || message.includes("uploaded")
+                ? "text-emerald-400"
+                : "text-cyan-300"
             }`}
           >
             {message}
@@ -176,6 +175,25 @@ export default function AdminTimetablePage() {
             </p>
           </div>
         )}
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-violet-500/20 bg-violet-500/5 p-6">
+        <h2 className="font-semibold text-white">Upload Academic Calendar</h2>
+        <p className="mt-1 text-sm text-zinc-400">
+          Excel with columns: Date, Type (holiday/event/exam/long weekend), Title, Description
+        </p>
+        <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-black/30 px-6 py-8 transition hover:border-violet-500/40">
+          <p className="text-sm text-zinc-300">{calFile ? calFile.name : "Select academic calendar .xlsx"}</p>
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            className="hidden"
+            onChange={(e) => setCalFile(e.target.files?.[0] || null)}
+          />
+        </label>
+        <GlowButton className="mt-4 w-full" onClick={uploadCalendar} disabled={calLoading || !calFile}>
+          {calLoading ? "Uploading..." : "Upload Academic Calendar"}
+        </GlowButton>
       </div>
     </NavShell>
   );
