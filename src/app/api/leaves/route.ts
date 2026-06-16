@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { buildLeaveFeedMessage, buildClassmateAlert } from "@/lib/alerts";
 import { endOfDay, normalizeTimetableEntries, startOfDay } from "@/lib/utils";
 import { maxLeavesForCredits } from "@/lib/utils";
+import { isExcludedSubject } from "@/lib/subjects";
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -24,7 +25,9 @@ export async function GET(request: Request) {
       where: { date: { gte: startOfDay(date), lte: endOfDay(date) } },
       include: { subject: true },
     });
-    const entries = normalizeTimetableEntries(raw);
+    const entries = normalizeTimetableEntries(raw).filter(
+      (e) => !isExcludedSubject(e.subject.name)
+    );
     return NextResponse.json({ entries, leaves });
   }
 

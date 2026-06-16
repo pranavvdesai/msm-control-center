@@ -1,6 +1,7 @@
 import { prisma } from "./db";
 import { buildSubjectStats, getSubjectAlert } from "./alerts";
 import { formatDate } from "./utils";
+import { isExcludedSubject } from "./subjects";
 
 export type WeeklyLeaveReport = {
   subjectStats: Array<{
@@ -29,13 +30,14 @@ export async function buildUserLeaveReport(userId: string): Promise<WeeklyLeaveR
   weekStart.setHours(0, 0, 0, 0);
 
   const subjects = await prisma.subject.findMany({ orderBy: { name: "asc" } });
+  const trackableSubjects = subjects.filter((s) => !isExcludedSubject(s.name));
   const leaves = await prisma.leave.findMany({
     where: { userId },
     include: { subject: true, timetableEntry: true },
     orderBy: { date: "desc" },
   });
 
-  const subjectStats = subjects.map((subject) => {
+  const subjectStats = trackableSubjects.map((subject) => {
     const subjectLeaves = leaves.filter((l) => l.subjectId === subject.id);
     const regularAbsences = subjectLeaves.filter((l) => l.type === "REGULAR").length;
     const condonedLeaves = subjectLeaves.filter((l) => l.type === "CONDONED").length;

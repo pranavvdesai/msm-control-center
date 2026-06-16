@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { NavShell } from "@/components/NavShell";
 import { GlowButton } from "@/components/GlowButton";
-import { Mail, Cake, CalendarDays, Clock, Loader2 } from "lucide-react";
+import { Mail, Cake, CalendarDays, Clock, Loader2, Bell } from "lucide-react";
 
-type EmailType = "welcome" | "birthday" | "weekly";
+type EmailType = "welcome" | "birthday" | "weekly" | "alert";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -99,6 +99,12 @@ export default function AdminPage() {
       description: "Sample Saturday weekly leave summary — sent to your college email now.",
       icon: CalendarDays,
     },
+    {
+      type: "alert",
+      title: "Test daily alert mail",
+      description: "Evening reminder: did you miss any class? Record your leave now.",
+      icon: Bell,
+    },
   ];
 
   return (
@@ -124,7 +130,7 @@ export default function AdminPage() {
         <p className="mb-4 text-sm text-zinc-500">
           Each button sends a sample to your profile email right away. Subjects are prefixed with [TEST].
         </p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {emailTests.map(({ type, title, description, icon: Icon }) => (
             <div
               key={type}

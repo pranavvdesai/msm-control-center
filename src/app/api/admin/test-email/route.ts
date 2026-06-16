@@ -13,8 +13,12 @@ import {
   weeklyLeaveReportEmailHtml,
   WEEKLY_LEAVE_REPORT_SUBJECT,
 } from "@/lib/weekly-leave-report";
+import {
+  CLASS_REMINDER_EMAIL_SUBJECT,
+  classReminderEmailHtml,
+} from "@/lib/class-reminder";
 
-const VALID_TYPES = new Set(["welcome", "birthday", "weekly"]);
+const VALID_TYPES = new Set(["welcome", "birthday", "weekly", "alert"]);
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -39,7 +43,7 @@ export async function POST(request: Request) {
   const type = body.type;
   if (!type || !VALID_TYPES.has(type)) {
     return NextResponse.json(
-      { error: "type must be welcome, birthday, or weekly" },
+      { error: "type must be welcome, birthday, weekly, or alert" },
       { status: 400 }
     );
   }
@@ -103,16 +107,32 @@ export async function POST(request: Request) {
       });
     }
 
-    const report = await buildUserLeaveReport(session.id);
-    const html = weeklyLeaveReportEmailHtml(firstName, report, appUrl);
-    const sent = await sendEmail(to, `[TEST] ${WEEKLY_LEAVE_REPORT_SUBJECT}`, html);
-    if (!sent) {
-      return NextResponse.json({ error: "Weekly test email failed to send." }, { status: 500 });
+    if (type === "alert") {
+      const html = classReminderEmailHtml(firstName, appUrl);
+      const sent = await sendEmail(to, `[TEST] ${CLASS_REMINDER_EMAIL_SUBJECT}`, html);
+      if (!sent) {
+        return NextResponse.json({ error: "Alert test email failed to send." }, { status: 500 });
+      }
+      return NextResponse.json({
+        ok: true,
+        message: `Daily alert test email sent to ${to}`,
+      });
     }
-    return NextResponse.json({
-      ok: true,
-      message: `Weekly leave report test sent to ${to}`,
-    });
+
+    if (type === "weekly") {
+      const report = await buildUserLeaveReport(session.id);
+      const html = weeklyLeaveReportEmailHtml(firstName, report, appUrl);
+      const sent = await sendEmail(to, `[TEST] ${WEEKLY_LEAVE_REPORT_SUBJECT}`, html);
+      if (!sent) {
+        return NextResponse.json({ error: "Weekly test email failed to send." }, { status: 500 });
+      }
+      return NextResponse.json({
+        ok: true,
+        message: `Weekly leave report test sent to ${to}`,
+      });
+    }
+
+    return NextResponse.json({ error: "Unknown email type" }, { status: 400 });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Send failed";
     return NextResponse.json({ error: message }, { status: 500 });

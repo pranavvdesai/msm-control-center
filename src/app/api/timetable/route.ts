@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { endOfDay, normalizeTimetableEntries, startOfDay } from "@/lib/utils";
+import { isExcludedSubject } from "@/lib/subjects";
+
+function filterTrackableEntries<T extends { subject: { name: string } }>(entries: T[]): T[] {
+  return entries.filter((e) => !isExcludedSubject(e.subject.name));
+}
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -17,7 +22,7 @@ export async function GET(request: Request) {
       where: { date: { gte: startOfDay(d), lte: endOfDay(d) } },
       include: { subject: true },
     });
-    const entries = normalizeTimetableEntries(raw);
+    const entries = filterTrackableEntries(normalizeTimetableEntries(raw));
     return NextResponse.json({ entries });
   }
 
@@ -30,7 +35,7 @@ export async function GET(request: Request) {
       include: { subject: true },
       orderBy: { date: "asc" },
     });
-    const entries = normalizeTimetableEntries(raw);
+    const entries = filterTrackableEntries(normalizeTimetableEntries(raw));
     return NextResponse.json({ entries });
   }
 
@@ -39,7 +44,7 @@ export async function GET(request: Request) {
     orderBy: { date: "asc" },
     take: 100,
   });
-  const entries = normalizeTimetableEntries(raw);
+  const entries = filterTrackableEntries(normalizeTimetableEntries(raw));
 
   return NextResponse.json({ entries });
 }

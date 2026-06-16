@@ -11,6 +11,7 @@ import {
 } from "@/lib/utils";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { isRamAdmin } from "@/lib/permissions";
+import { isExcludedSubject } from "@/lib/subjects";
 
 export async function GET() {
   const session = await getSession();
@@ -19,12 +20,13 @@ export async function GET() {
   const today = new Date();
   const settings = await prisma.appSettings.findFirst();
   const subjects = await prisma.subject.findMany({ orderBy: { name: "asc" } });
+  const trackableSubjects = subjects.filter((s) => !isExcludedSubject(s.name));
   const leaves = await prisma.leave.findMany({
     where: { userId: session.id },
     include: { subject: true, timetableEntry: true },
   });
 
-  const subjectStats = subjects.map((subject) => {
+  const subjectStats = trackableSubjects.map((subject) => {
     const subjectLeaves = leaves.filter((l) => l.subjectId === subject.id);
     const regularAbsences = subjectLeaves.filter((l) => l.type === "REGULAR").length;
     const condonedLeaves = subjectLeaves.filter((l) => l.type === "CONDONED").length;
@@ -44,7 +46,9 @@ export async function GET() {
     include: { subject: true },
   });
 
-  const todayClasses = normalizeTimetableEntries(rawTodayClasses);
+  const todayClasses = normalizeTimetableEntries(rawTodayClasses).filter(
+    (c) => !isExcludedSubject(c.subject.name)
+  );
 
   const todayLeaves = leaves.filter(
     (l) => l.date >= startOfDay(today) && l.date <= endOfDay(today)
