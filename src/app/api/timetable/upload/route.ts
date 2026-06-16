@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { sessionCanUpload } from "@/lib/permissions";
 import { parseTimetableExcel } from "@/lib/parse-timetable-excel";
+import { normalizeClassTimePair } from "@/lib/utils";
 
 export async function POST(request: Request) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !(await sessionCanUpload(session))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -56,26 +58,21 @@ export async function POST(request: Request) {
       subjectsCreated++;
     }
 
-    const internSubject = await prisma.subject.upsert({
-      where: { code: "INTERN" },
-      update: { name: "Internship Viva Voce", credits: 1 },
-      create: { code: "INTERN", name: "Internship Viva Voce", credits: 1 },
-    });
-
     const dbSubjects = await prisma.subject.findMany();
     const codeMap = new Map(dbSubjects.map((s) => [s.code, s.id]));
-    codeMap.set("INTERN", internSubject.id);
 
     let created = 0;
     for (const entry of parsed.entries) {
       const subjectId = codeMap.get(entry.subjectCode);
       if (!subjectId) continue;
 
+      const { startTime, endTime } = normalizeClassTimePair(entry.startTime, entry.endTime);
+
       await prisma.timetableEntry.create({
         data: {
           date: new Date(entry.date),
-          startTime: entry.startTime,
-          endTime: entry.endTime,
+          startTime,
+          endTime,
           room: entry.room,
           faculty: entry.faculty,
           subjectId,

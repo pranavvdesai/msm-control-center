@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { endOfDay, startOfDay } from "@/lib/utils";
+import { endOfDay, normalizeTimetableEntries, startOfDay } from "@/lib/utils";
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -13,11 +13,11 @@ export async function GET(request: Request) {
 
   if (date) {
     const d = new Date(date);
-    const entries = await prisma.timetableEntry.findMany({
+    const raw = await prisma.timetableEntry.findMany({
       where: { date: { gte: startOfDay(d), lte: endOfDay(d) } },
       include: { subject: true },
-      orderBy: { startTime: "asc" },
     });
+    const entries = normalizeTimetableEntries(raw);
     return NextResponse.json({ entries });
   }
 
@@ -25,19 +25,21 @@ export async function GET(request: Request) {
     const [year, mon] = month.split("-").map(Number);
     const start = new Date(year, mon - 1, 1);
     const end = new Date(year, mon, 0, 23, 59, 59, 999);
-    const entries = await prisma.timetableEntry.findMany({
+    const raw = await prisma.timetableEntry.findMany({
       where: { date: { gte: start, lte: end } },
       include: { subject: true },
-      orderBy: [{ date: "asc" }, { startTime: "asc" }],
+      orderBy: { date: "asc" },
     });
+    const entries = normalizeTimetableEntries(raw);
     return NextResponse.json({ entries });
   }
 
-  const entries = await prisma.timetableEntry.findMany({
+  const raw = await prisma.timetableEntry.findMany({
     include: { subject: true },
-    orderBy: [{ date: "asc" }, { startTime: "asc" }],
+    orderBy: { date: "asc" },
     take: 100,
   });
+  const entries = normalizeTimetableEntries(raw);
 
   return NextResponse.json({ entries });
 }
@@ -77,7 +79,7 @@ export async function POST(request: Request) {
 
     await prisma.activityEvent.create({
       data: {
-        message: `Monthly timetable updated. ${created} lectures loaded. Faculty calendars synced (probably).`,
+        message: `Monthly timetable updated. ${created} lectures loaded.`,
         type: "admin",
       },
     });

@@ -35,10 +35,25 @@ export function endOfDay(date: Date | string) {
   return d;
 }
 
-/** Parse "09:00", "9:00 AM", "14:30" into minutes since midnight for sorting */
+/** TAPMI Excel slots: 8–11 AM, 12 noon, 1–7 PM when AM/PM omitted */
+function bareHourTo24(h: number): number {
+  if (h >= 8 && h <= 11) return h;
+  if (h === 12) return 12;
+  if (h >= 1 && h <= 7) return h + 12;
+  return h;
+}
+
+function format12h(hour24: number, minute: string): string {
+  const mer = hour24 >= 12 ? "PM" : "AM";
+  let h = hour24 % 12;
+  if (h === 0) h = 12;
+  return `${String(h).padStart(2, "0")}:${minute} ${mer}`;
+}
+
+/** Parse "09:00", "9:00 AM", "14:30", "08:45" into minutes since midnight */
 export function timeToMinutes(time: string): number {
   const trimmed = time.trim();
-  const ampm = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  const ampm = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
   if (ampm) {
     let h = parseInt(ampm[1], 10);
     const m = parseInt(ampm[2], 10);
@@ -47,8 +62,13 @@ export function timeToMinutes(time: string): number {
     if (!pm && h === 12) h = 0;
     return h * 60 + m;
   }
-  const parts = trimmed.split(":");
-  return parseInt(parts[0], 10) * 60 + parseInt(parts[1] || "0", 10);
+  const bare = trimmed.match(/^(\d{1,2}):(\d{2})/);
+  if (bare) {
+    const h24 = bareHourTo24(parseInt(bare[1], 10));
+    const m = parseInt(bare[2], 10);
+    return h24 * 60 + m;
+  }
+  return 0;
 }
 
 /** Normalize TAPMI-style times for display + sort (e.g. 2:30 → 02:30 PM) */
@@ -62,13 +82,10 @@ export function normalizeClassTimePair(startTime: string, endTime: string) {
 function normalizeOneTime(time: string): string {
   const t = time.trim();
   if (/AM|PM/i.test(t)) return t.replace(/\s+/g, " ");
-  const [hStr, mStr] = t.split(":");
-  let h = parseInt(hStr, 10);
-  const m = mStr?.padStart(2, "0") || "00";
-  const mer = h >= 12 ? "PM" : "AM";
-  if (h > 12) h -= 12;
-  if (h === 0) h = 12;
-  return `${String(h).padStart(2, "0")}:${m} ${mer}`;
+  const bare = t.match(/^(\d{1,2}):(\d{2})/);
+  if (!bare) return t;
+  const h24 = bareHourTo24(parseInt(bare[1], 10));
+  return format12h(h24, bare[2].padStart(2, "0"));
 }
 
 export function sortByStartTime<T extends { startTime: string }>(entries: T[]): T[] {

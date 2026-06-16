@@ -98,8 +98,11 @@ export default function DashboardPage() {
         <h1 className="mt-2 text-2xl font-black text-white md:text-4xl">
           MSM Control Center
         </h1>
-        <p className="mt-1 text-sm text-cyan-300/90">
-          CR: {data.settings?.crName || CR_FULL_NAME}
+        <p className="mt-1 text-sm text-zinc-400">
+          Class Representative:{" "}
+          <span className="font-bold text-white">
+            {data.settings?.crName || CR_FULL_NAME}
+          </span>
         </p>
         <CrContact
           crName={data.settings?.crName || CR_FULL_NAME}

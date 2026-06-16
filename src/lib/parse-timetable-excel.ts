@@ -28,18 +28,33 @@ function parseTimeRange(slot: string): { startTime: string; endTime: string } | 
   const match = cleaned.match(/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/);
   if (!match) return null;
 
-  const [, sh, sm, eh, em] = match;
-  let endHour = parseInt(eh, 10);
-  const startHour = parseInt(sh, 10);
-  if (endHour < startHour) endHour += 12;
+  const sh = parseInt(match[1], 10);
+  const sm = match[2];
+  const eh = parseInt(match[3], 10);
+  const em = match[4];
 
-  const pad = (h: number, m: string) =>
-    `${String(h).padStart(2, "0")}:${m}`;
+  let start24 = bareHourTo24(sh);
+  let end24 = bareHourTo24(eh);
+  if (end24 <= start24) end24 += 12;
 
   return {
-    startTime: pad(startHour, sm),
-    endTime: pad(endHour, em),
+    startTime: format12h(start24, sm),
+    endTime: format12h(end24, em),
   };
+}
+
+function bareHourTo24(h: number): number {
+  if (h >= 8 && h <= 11) return h;
+  if (h === 12) return 12;
+  if (h >= 1 && h <= 7) return h + 12;
+  return h;
+}
+
+function format12h(hour24: number, minute: string): string {
+  const mer = hour24 >= 12 ? "PM" : "AM";
+  let h = hour24 % 12;
+  if (h === 0) h = 12;
+  return `${String(h).padStart(2, "0")}:${minute} ${mer}`;
 }
 
 function parseDate(value: string): string | null {
