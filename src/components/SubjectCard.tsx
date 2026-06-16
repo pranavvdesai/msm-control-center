@@ -46,16 +46,16 @@ export function SubjectCard({
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-sm"
+      className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3 backdrop-blur-sm sm:p-4"
     >
       <div className="mb-3 flex items-start justify-between gap-2">
-        <div>
-          <h3 className="font-semibold text-white">{subjectName}</h3>
+        <div className="min-w-0 flex-1">
+          <h3 className="break-words font-semibold text-white">{subjectName}</h3>
           <p className="text-xs text-zinc-500">{credits} credits · max {maxLeaves} leaves</p>
         </div>
         <span
           className={cn(
-            "rounded-full px-2 py-0.5 text-xs font-medium",
+            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:text-xs",
             remainingLeaves === 0
               ? "bg-red-500/20 text-red-300"
               : remainingLeaves === 1

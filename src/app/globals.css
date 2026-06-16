@@ -5,15 +5,63 @@
 :root {
   --background: #050510;
   --foreground: #f4f4f5;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+@layer utilities {
+  .pb-nav-mobile {
+    padding-bottom: calc(5.75rem + var(--safe-bottom));
+  }
+
+  .pb-nav-desktop {
+    padding-bottom: 5rem;
+  }
+
+  .safe-bottom {
+    padding-bottom: max(0.5rem, var(--safe-bottom));
+  }
+
+  .safe-top {
+    padding-top: max(0px, var(--safe-top));
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Leave calendar — mobile friendly */
+@media (max-width: 639px) {
+  .rdp-root {
+    --rdp-day-height: 2.25rem;
+    --rdp-day-width: 2.25rem;
+    --rdp-day_button-height: 2.25rem;
+    --rdp-day_button-width: 2.25rem;
+    font-size: 0.875rem;
+  }
 }

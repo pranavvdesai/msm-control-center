@@ -26,6 +26,10 @@ const navItems = [
   { href: "/admin/timetable", label: "Upload", icon: Upload, uploadOnly: true },
 ];
 
+function firstName(name: string) {
+  return name.split(" ")[0];
+}
+
 export function NavShell({
   children,
   userName,
@@ -90,27 +94,30 @@ export function NavShell({
         />
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-[#030014]/80 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-lg shadow-cyan-500/20">
-              <Shield className="h-5 w-5 text-white" />
+      <header className="safe-top sticky top-0 z-40 border-b border-white/5 bg-[#030014]/90 backdrop-blur-2xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2.5 sm:px-4 sm:py-3">
+          <Link href="/dashboard" className="flex min-w-0 shrink items-center gap-2 sm:gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-lg shadow-cyan-500/20 sm:h-9 sm:w-9">
+              <Shield className="h-4 w-4 text-white sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-400">
+            <div className="min-w-0">
+              <p className="truncate text-[9px] font-bold uppercase tracking-[0.2em] text-cyan-400 sm:text-[10px] sm:tracking-[0.25em]">
                 TAPMI · MSM
               </p>
-              <h1 className="text-sm font-bold text-white">Control Center</h1>
+              <h1 className="truncate text-xs font-bold text-white sm:text-sm">Control Center</h1>
             </div>
           </Link>
           {userName && (
-            <div className="flex items-center gap-2">
-              <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1 sm:block">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+              <div className="max-w-[5.5rem] truncate rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-white sm:hidden">
+                {firstName(userName)}
+              </div>
+              <div className="hidden max-w-[10rem] truncate rounded-full border border-white/10 bg-white/5 px-3 py-1 sm:block">
                 <span className="text-xs font-semibold text-white">{userName}</span>
               </div>
               <button
                 onClick={logout}
-                className="rounded-xl border border-white/10 p-2.5 transition hover:border-red-500/30 hover:bg-red-500/10"
+                className="rounded-xl border border-white/10 p-2 transition hover:border-red-500/30 hover:bg-red-500/10 sm:p-2.5"
                 aria-label="Logout"
               >
                 <LogOut className="h-4 w-4 text-zinc-400" />
@@ -138,23 +145,28 @@ export function NavShell({
         </nav>
       </header>
 
-      <main className="relative mx-auto max-w-6xl px-4 py-6 pb-28 md:pb-20">{children}</main>
+      <main className="relative mx-auto max-w-6xl px-3 py-4 pb-nav-mobile sm:px-4 sm:py-6 md:pb-nav-desktop">
+        {children}
+      </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-[#030014]/95 backdrop-blur-2xl md:hidden">
-        <div className="flex justify-around overflow-x-auto px-1 py-2">
-          {visibleNav.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex min-w-[3.5rem] flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[9px] transition",
-                pathname === href ? "text-cyan-400" : "text-zinc-500"
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              {label}
-            </Link>
-          ))}
+      <nav className="safe-bottom fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-[#030014]/95 backdrop-blur-2xl md:hidden">
+        <div className="scrollbar-none flex gap-0.5 overflow-x-auto px-1 py-1.5">
+          {visibleNav.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex min-w-[4.25rem] shrink-0 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[9px] font-medium transition active:scale-95",
+                  active ? "bg-cyan-500/15 text-cyan-400" : "text-zinc-500"
+                )}
+              >
+                <Icon className={cn("h-5 w-5", active && "text-cyan-400")} />
+                <span className="max-w-[4rem] truncate text-center leading-tight">{label}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </div>

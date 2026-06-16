@@ -130,7 +130,7 @@ export default function AdminPage() {
         <p className="mb-4 text-sm text-zinc-500">
           Each button sends a sample to your profile email right away. Subjects are prefixed with [TEST].
         </p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {emailTests.map(({ type, title, description, icon: Icon }) => (
             <div
               key={type}
@@ -161,8 +161,8 @@ export default function AdminPage() {
       </section>
 
       <section className="mb-8 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
               <Clock className="h-5 w-5 text-violet-400" />
               Fix timetable order
@@ -173,6 +173,7 @@ export default function AdminPage() {
           </div>
           <GlowButton
             variant="secondary"
+            className="w-full sm:w-auto"
             disabled={loading !== null}
             onClick={fixTimetableTimes}
           >

@@ -37,8 +37,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col lg:flex-row">
-      <div className="relative flex flex-1 flex-col justify-center overflow-hidden bg-[#030014] px-6 py-12 lg:px-16">
+    <div className="relative flex min-h-screen min-h-[100dvh] flex-col lg:flex-row">
+      <div className="relative flex flex-1 flex-col justify-center overflow-hidden bg-[#030014] px-4 py-8 sm:px-6 sm:py-12 lg:px-16">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -83,7 +83,7 @@ export default function LoginPage() {
         </motion.div>
       </div>
 
-      <div className="flex flex-1 items-center justify-center bg-[#050510] px-6 py-12 lg:border-l lg:border-white/5">
+      <div className="flex flex-1 items-center justify-center bg-[#050510] px-4 py-8 pb-16 sm:px-6 sm:py-12 lg:border-l lg:border-white/5 lg:pb-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

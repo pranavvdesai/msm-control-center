@@ -84,9 +84,9 @@ export default function DashboardPage() {
       <motion.section
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative mb-6 overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-[#0a0a1a] to-violet-500/10 p-6"
+        className="relative mb-4 overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-[#0a0a1a] to-violet-500/10 p-4 sm:mb-6 sm:rounded-3xl sm:p-6"
       >
-        <div className="absolute right-4 top-4 z-10">
+        <div className="absolute right-3 top-3 z-10 sm:right-4 sm:top-4">
           <button
             onClick={handleRefresh}
             className="rounded-lg border border-white/10 p-2 text-zinc-400 transition hover:text-cyan-400"
@@ -96,12 +96,12 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-8">
-          <div className="pr-10 lg:pr-0">
-            <p className="text-xs uppercase tracking-[0.35em] text-cyan-400">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-8">
+          <div className="min-w-0 pr-8 sm:pr-0">
+            <p className="text-[10px] uppercase leading-relaxed tracking-[0.2em] text-cyan-400 sm:text-xs sm:tracking-[0.35em]">
               {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
             </p>
-            <h1 className="mt-2 text-2xl font-black text-white md:text-4xl">
+            <h1 className="mt-2 text-xl font-black text-white sm:text-2xl md:text-4xl">
               MSM Control Center
             </h1>
             <p className="mt-1 text-sm text-zinc-400">
@@ -118,14 +118,14 @@ export default function DashboardPage() {
               Welcome back, <span className="font-semibold text-white">{data.user.name}</span>.
               Your attendance radar is live.
             </p>
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="mt-4 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
               <Badge label="Regular absences" value={data.summary.totalRegular} color="red" />
               <Badge label="Condoned leaves" value={data.summary.totalCondoned} color="violet" />
               <Badge label="Subjects tracked" value={data.subjectStats.length} color="cyan" />
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-black/25 p-4 lg:mt-8 lg:p-5">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-black/25 p-3 sm:p-4 lg:mt-8 lg:p-5">
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-violet-300">
               The Kootlers · MSM
             </p>
@@ -142,7 +142,7 @@ export default function DashboardPage() {
         </div>
       </motion.section>
 
-      <div className="mb-6 rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-[#0a0a1a] to-cyan-500/5 p-5">
+      <div className="mb-4 rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-[#0a0a1a] to-cyan-500/5 p-4 sm:mb-6 sm:p-5">
         <p className="text-sm leading-relaxed text-zinc-300">
           When the weary soul finally left the mortal world and stood before the gates of eternity,
           the Almighty smiled… then sighed softly —
@@ -182,12 +182,12 @@ export default function DashboardPage() {
                     transition={{ delay: i * 0.05 }}
                     className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 transition hover:border-cyan-500/20"
                   >
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div>
-                        <p className="font-medium text-white">{c.subject.name}</p>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="break-words font-medium text-white">{c.subject.name}</p>
                         <p className="mt-1 text-xs font-medium text-cyan-400">{c.subject.code}</p>
                       </div>
-                      <span className="rounded-full bg-violet-500/20 px-2.5 py-0.5 text-xs text-violet-200">
+                      <span className="w-fit shrink-0 rounded-full bg-violet-500/20 px-2.5 py-0.5 text-xs text-violet-200">
                         {formatClassTimeRange(c.startTime, c.endTime)}
                       </span>
                     </div>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
                 No subjects loaded yet. Admin: upload TERM 4 MBA-MKT TT.xlsx from Upload TT tab.
               </p>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                 {data.subjectStats.map((s) => (
                   <SubjectCard key={s.subjectName} {...s} />
                 ))}
@@ -239,9 +239,9 @@ function Badge({
     cyan: "border-cyan-500/20 text-cyan-300",
   };
   return (
-    <div className={`rounded-xl border bg-black/30 px-3 py-2 ${colors[color]}`}>
-      <p className="text-[10px] uppercase opacity-70">{label}</p>
-      <p className="text-xl font-bold text-white">{value}</p>
+    <div className={`rounded-2xl border bg-black/30 px-2 py-2 text-center sm:rounded-xl sm:px-3 sm:py-2 sm:text-left ${colors[color]}`}>
+      <p className="text-[9px] uppercase opacity-70 sm:text-[10px]">{label}</p>
+      <p className="text-lg font-bold text-white sm:text-xl">{value}</p>
     </div>
   );
 }

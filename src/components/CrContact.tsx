@@ -15,10 +15,11 @@ export function CrContact({
   )}`;
 
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-2">
+    <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <span className="text-xs text-zinc-500">
         Discrepancy or emergency? Contact CR
       </span>
+      <div className="flex flex-wrap gap-2">
       <a
         href={tel}
         className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300"
@@ -35,6 +36,7 @@ export function CrContact({
         <MessageCircle className="h-3 w-3" />
         WhatsApp
       </a>
+      </div>
     </div>
   );
 }

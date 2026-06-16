@@ -52,16 +52,16 @@ export default function TimetablePage() {
 
   return (
     <NavShell userName={userName} isAdmin={isAdmin} canAdmin={canAdmin}>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Timetable</h1>
-          <p className="text-zinc-400">Full schedule for the MSM cohort — chronological order.</p>
+      <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold text-white sm:text-2xl">Timetable</h1>
+          <p className="text-sm text-zinc-400">Full schedule — chronological order.</p>
         </div>
         <input
           type="month"
           value={month}
           onChange={(e) => setMonth(e.target.value)}
-          className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+          className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-white sm:w-auto"
         />
       </div>
 
@@ -81,16 +81,16 @@ export default function TimetablePage() {
                   {dayEntries.map((e) => (
                     <div
                       key={e.id}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/30 px-3 py-2"
+                      className="flex flex-col gap-2 rounded-xl bg-black/30 px-3 py-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
                     >
-                      <div>
-                        <p className="font-medium text-white">{e.subject.name}</p>
+                      <div className="min-w-0">
+                        <p className="break-words font-medium text-white">{e.subject.name}</p>
                         <p className="text-xs text-cyan-400">{e.subject.code}</p>
                         <p className="text-xs text-zinc-500">
                           Prof. {e.faculty || "TBA"} · {e.room || "Room TBA"}
                         </p>
                       </div>
-                      <span className="text-sm font-medium text-violet-300">
+                      <span className="shrink-0 text-sm font-medium text-violet-300">
                         {formatClassTimeRange(e.startTime, e.endTime)}
                       </span>
                     </div>

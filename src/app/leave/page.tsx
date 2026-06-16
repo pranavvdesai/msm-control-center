@@ -79,23 +79,25 @@ export default function LeavePage() {
 
   return (
     <NavShell userName={userName}>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Mark Leave</h1>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl font-bold text-white sm:text-2xl">Mark Leave</h1>
         <p className="text-zinc-400">
           Select a date, pick the lecture, choose absence type.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3 sm:p-4">
           <h2 className="mb-3 font-semibold text-white">Step 1 — Select Date</h2>
-          <div className="flex justify-center [&_.rdp]:text-white [&_.rdp-day_button]:text-zinc-200">
+          <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+            <div className="flex min-w-[280px] justify-center [&_.rdp]:text-white [&_.rdp-day_button]:text-zinc-200">
             <DayPicker
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
               disabled={{ after: new Date() }}
             />
+            </div>
           </div>
           {selectedDate && (
             <p className="mt-2 text-center text-sm text-cyan-400">

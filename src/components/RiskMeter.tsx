@@ -36,14 +36,15 @@ export function RiskMeter({ score }: { score: number }) {
   const c = config[level];
 
   return (
-    <div className={`rounded-2xl border border-white/10 bg-black/40 p-5 shadow-lg ${c.glow}`}>
-      <div className="flex items-center justify-between">
-        <div>
+    <div className={`rounded-2xl border border-white/10 bg-black/40 p-4 shadow-lg sm:p-5 ${c.glow}`}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
           <p className="text-xs uppercase tracking-widest text-zinc-500">Attendance Health</p>
-          <p className="mt-1 text-xl font-black text-white">{c.label}</p>
+          <p className="mt-1 text-lg font-black text-white sm:text-xl">{c.label}</p>
+          <p className="mt-2 text-sm text-zinc-400 sm:mt-3">{c.message}</p>
         </div>
         <motion.div
-          className="relative flex h-20 w-20 items-center justify-center"
+          className="relative mx-auto flex h-20 w-20 shrink-0 items-center justify-center sm:mx-0"
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
@@ -72,7 +73,6 @@ export function RiskMeter({ score }: { score: number }) {
           <span className="absolute text-lg font-black text-white">{score}%</span>
         </motion.div>
       </div>
-      <p className="mt-3 text-sm text-zinc-400">{c.message}</p>
     </div>
   );
 }
