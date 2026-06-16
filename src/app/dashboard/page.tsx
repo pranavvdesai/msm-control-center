@@ -7,7 +7,6 @@ import { SubjectCard } from "@/components/SubjectCard";
 import { SocialFeed } from "@/components/SocialFeed";
 import { RiskMeter } from "@/components/RiskMeter";
 import { CrContact } from "@/components/CrContact";
-import { ClassReminderBanner } from "@/components/ClassReminderBanner";
 import { WeeklyLeaveReminderBanner } from "@/components/WeeklyLeaveReminderBanner";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { formatClassTimeRange } from "@/lib/utils";
@@ -128,8 +127,16 @@ export default function DashboardPage() {
         <WeeklyLeaveReminderBanner />
       </div>
 
-      <div className="mb-6">
-        <ClassReminderBanner unmarkedCount={data.unmarkedEndedClasses} />
+      <div className="mb-6 rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-[#0a0a1a] to-cyan-500/5 p-5">
+        <p className="text-sm leading-relaxed text-zinc-300">
+          When the weary soul finally left the mortal world and stood before the gates of eternity,
+          the Almighty smiled… then sighed softly —
+        </p>
+        <p className="mt-3 border-l-2 border-amber-400/60 pl-4 text-sm italic leading-relaxed text-amber-100/90">
+          &lsquo;My child, heaven welcomes all… but not those below 75%.
+          <br />
+          Track your attendance wisely… destiny keeps a record of everything.&rsquo;
+        </p>
       </div>
 
       <div className="mb-6">
