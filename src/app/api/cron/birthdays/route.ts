@@ -36,13 +36,17 @@ export async function GET(request: Request) {
     return b.month === month && b.day === day;
   });
 
-  const recipientEmails = [
-    ...new Set(allUsers.map((u) => u.collegeEmail!).filter(Boolean)),
-  ];
+  const recipients = allUsers
+    .filter((u) => u.collegeEmail)
+    .map((u) => ({
+      email: u.collegeEmail!,
+      name: u.name,
+      rollNumber: u.rollNumber,
+    }));
 
   const result = await sendBirthdayEmails(
     birthdayPeople.map((p) => ({ name: p.name, rollNumber: p.rollNumber })),
-    recipientEmails
+    recipients
   );
 
   if (birthdayPeople.length > 0) {

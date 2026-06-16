@@ -1,8 +1,18 @@
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
+import {
+  buildBirthdayPersonEmail,
+  buildClassmateBirthdayEmail,
+} from "@/lib/birthday-email-content";
 
 type BirthdayPerson = {
+  name: string;
+  rollNumber: string;
+};
+
+type BirthdayRecipient = {
+  email: string;
   name: string;
   rollNumber: string;
 };
@@ -205,7 +215,7 @@ export async function sendWelcomeEmail(person: WelcomePerson, subjectPrefix = ""
 
 export async function sendBirthdayEmails(
   birthdayPeople: BirthdayPerson[],
-  recipientEmails: string[],
+  recipients: BirthdayRecipient[],
   subjectPrefix = ""
 ) {
   if (!isEmailConfigured()) {
@@ -213,43 +223,24 @@ export async function sendBirthdayEmails(
     return { sent: 0, skipped: true };
   }
 
-  if (birthdayPeople.length === 0 || recipientEmails.length === 0) {
+  if (birthdayPeople.length === 0 || recipients.length === 0) {
     return { sent: 0, skipped: false };
   }
 
-  const names = birthdayPeople.map((p) => p.name).join(", ");
-  const rolls = birthdayPeople.map((p) => p.rollNumber).join(", ");
-  const subject =
-    subjectPrefix +
-    (birthdayPeople.length === 1
-      ? `🎂 Happy Birthday ${birthdayPeople[0].name}! — MSM Control Center`
-      : `🎂 Birthday Alert! ${birthdayPeople.length} MSM friends celebrate today`);
-
-  const html = `
-    <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; background: #030014; color: #f4f4f5; padding: 32px; border-radius: 16px;">
-      <p style="color: #22d3ee; font-size: 12px; letter-spacing: 3px; text-transform: uppercase;">MSM Control Center</p>
-      <h1 style="font-size: 28px; margin: 16px 0;">🎉 Birthday Celebration!</h1>
-      <p style="color: #a1a1aa; line-height: 1.6;">
-        Today the MSM cohort celebrates <strong style="color: white;">${names}</strong>.
-      </p>
-      <p style="color: #71717a; font-size: 14px;">Roll: ${rolls}</p>
-      <div style="margin: 24px 0; padding: 16px; background: #0a0a1a; border-radius: 12px; border: 1px solid #22d3ee33;">
-        <p style="margin: 0; color: #fbbf24; font-style: italic;">
-          "Ek saal aur badh gayi umar… attendance ab aur bhi important hai!"
-        </p>
-      </div>
-      <p style="color: #a1a1aa; font-size: 14px;">
-        Wish them in class, buy them chai, and remind them attendance still counts. 😄
-      </p>
-      <p style="color: #52525b; font-size: 11px; margin-top: 32px;">
-        MSM Control Center · TAPMI Manipal
-      </p>
-    </div>
-  `;
+  const birthdayRolls = new Set(birthdayPeople.map((p) => p.rollNumber.toUpperCase()));
 
   let sent = 0;
-  for (const to of recipientEmails) {
-    if (await sendEmail(to, subject, html)) sent++;
+  for (const recipient of recipients) {
+    const roll = recipient.rollNumber.toUpperCase();
+    const isBirthdayPerson = birthdayRolls.has(roll);
+    const birthdayPerson = birthdayPeople.find((p) => p.rollNumber.toUpperCase() === roll);
+
+    const { subject, html } =
+      isBirthdayPerson && birthdayPerson
+        ? buildBirthdayPersonEmail(birthdayPerson, subjectPrefix)
+        : buildClassmateBirthdayEmail(birthdayPeople, recipient, subjectPrefix);
+
+    if (await sendEmail(recipient.email, subject, html)) sent++;
   }
 
   return { sent, skipped: false };

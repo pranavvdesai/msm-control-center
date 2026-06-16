@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     if (type === "birthday") {
       const result = await sendBirthdayEmails(
         [{ name: user.name, rollNumber: user.rollNumber }],
-        [to],
+        [{ email: to, name: user.name, rollNumber: user.rollNumber }],
         "[TEST] "
       );
       if (result.sent === 0) {
