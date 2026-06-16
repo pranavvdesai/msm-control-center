@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Radio, UserPlus, CalendarOff, AlertTriangle } from "lucide-react";
+import { Radio, UserPlus, CalendarOff, AlertTriangle, LogIn } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -9,20 +9,25 @@ const FEED_META: Record<
   string,
   { label: string; icon: typeof Radio; className: string }
 > = {
+  login: {
+    label: "Logged in",
+    icon: LogIn,
+    className: "border-cyan-500/25 bg-cyan-500/10 text-cyan-200",
+  },
   leave: {
     label: "Leave marked",
     icon: CalendarOff,
     className: "border-amber-500/25 bg-amber-500/10 text-amber-200",
   },
-  signup: {
-    label: "New signup",
-    icon: UserPlus,
-    className: "border-emerald-500/25 bg-emerald-500/10 text-emerald-200",
-  },
   alert: {
     label: "Attendance alert",
     icon: AlertTriangle,
     className: "border-red-500/25 bg-red-500/10 text-red-200",
+  },
+  signup: {
+    label: "New signup",
+    icon: UserPlus,
+    className: "border-emerald-500/25 bg-emerald-500/10 text-emerald-200",
   },
 };
 
@@ -33,17 +38,18 @@ export function SocialFeed({
 }) {
   return (
     <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-4">
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <Radio className="h-4 w-4 animate-pulse text-violet-400" />
         <h2 className="font-semibold text-violet-200">Live MSM Feed</h2>
         <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] uppercase text-red-300">
           Live
         </span>
+        <span className="text-[10px] text-zinc-500">Top 10</span>
       </div>
       <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
         {items.length === 0 ? (
           <p className="rounded-xl border border-white/5 bg-black/20 px-3 py-4 text-sm text-zinc-500">
-            No activity yet. Leave marks and new signups will show up here.
+            Logins, leave marks, and attendance alerts will show up here.
           </p>
         ) : (
           items.map((item, i) => {

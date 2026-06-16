@@ -12,6 +12,7 @@ import {
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { isRamAdmin } from "@/lib/permissions";
 import { isExcludedSubject } from "@/lib/subjects";
+import { getLiveFeed } from "@/lib/feed";
 
 export async function GET() {
   const session = await getSession();
@@ -61,10 +62,7 @@ export async function GET() {
     markedEntryIds
   );
 
-  const feed = await prisma.activityEvent.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 20,
-  });
+  const feed = await getLiveFeed(10);
 
   const totalRegular = leaves.filter((l) => l.type === "REGULAR").length;
   const totalCondoned = leaves.filter((l) => l.type === "CONDONED").length;

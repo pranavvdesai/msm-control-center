@@ -174,7 +174,12 @@ export default function OnboardingPage() {
             </div>
           </fieldset>
 
-          <p className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs text-amber-200/80">
+          <p className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3 text-xs leading-relaxed text-cyan-100/90">
+            Please add your <strong>true college email</strong> and <strong>real birthday</strong>.
+            We&apos;ll send you exclusive MSM birthday mailers and attendance alerts to this inbox.
+          </p>
+
+          <p className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-relaxed text-amber-200/80">
             On your birthday, the whole MSM cohort gets a fun birthday mailer. Everyone celebrates together!
           </p>
 

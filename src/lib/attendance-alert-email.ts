@@ -93,16 +93,6 @@ export async function sendOneLeaveLeftAlertIfNeeded(
   );
 
   const sent = await sendEmail(to, ATTENDANCE_ALERT_SUBJECT, html);
-  if (sent) {
-    await prisma.activityEvent.create({
-      data: {
-        userId,
-        message: `⚠️ Attendance alert email sent — 1 leave left in ${subjectName}.`,
-        type: "alert",
-      },
-    });
-  }
-
   return { sent };
 }
 

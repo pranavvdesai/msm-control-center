@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { buildLeaveFeedMessage, buildClassmateAlert } from "@/lib/alerts";
+import { buildLeaveFeedMessage } from "@/lib/alerts";
+import { postAttendanceThresholdFeed } from "@/lib/feed";
 import { sendOneLeaveLeftAlertIfNeeded } from "@/lib/attendance-alert-email";
 import { endOfDay, normalizeTimetableEntries, startOfDay } from "@/lib/utils";
 import { maxLeavesForCredits } from "@/lib/utils";
@@ -96,27 +97,25 @@ export async function POST(request: Request) {
         },
       });
       const maxLeaves = maxLeavesForCredits(entry.subject.credits);
-      if (regularCount >= maxLeaves - 1) {
-        await prisma.activityEvent.create({
-          data: {
-            userId: session.id,
-            message: buildClassmateAlert(
-              session.name,
-              entry.subject.name,
-              regularCount,
-              maxLeaves
-            ),
-            type: "social",
-          },
-        });
+      const remaining = maxLeaves - regularCount;
+
+      if (remaining === 1 || remaining === 0) {
+        await postAttendanceThresholdFeed(
+          session.id,
+          session.name,
+          entry.subject.name,
+          remaining
+        );
       }
 
-      await sendOneLeaveLeftAlertIfNeeded(
-        session.id,
-        entry.subjectId,
-        entry.subject.name,
-        entry.subject.credits
-      );
+      if (remaining === 1) {
+        await sendOneLeaveLeftAlertIfNeeded(
+          session.id,
+          entry.subjectId,
+          entry.subject.name,
+          entry.subject.credits
+        );
+      }
     }
 
     return NextResponse.json({ leave });
