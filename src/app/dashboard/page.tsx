@@ -87,7 +87,7 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         className="relative mb-6 overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-[#0a0a1a] to-violet-500/10 p-6"
       >
-        <div className="absolute right-4 top-4">
+        <div className="absolute right-4 top-4 z-10">
           <button
             onClick={handleRefresh}
             className="rounded-lg border border-white/10 p-2 text-zinc-400 transition hover:text-cyan-400"
@@ -96,30 +96,50 @@ export default function DashboardPage() {
             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
           </button>
         </div>
-        <p className="text-xs uppercase tracking-[0.35em] text-cyan-400">
-          {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
-        </p>
-        <h1 className="mt-2 text-2xl font-black text-white md:text-4xl">
-          MSM Control Center
-        </h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Class Representative:{" "}
-          <span className="font-bold text-white">
-            {data.settings?.crName || CR_FULL_NAME}
-          </span>
-        </p>
-        <CrContact
-          crName={data.settings?.crName || CR_FULL_NAME}
-          crPhone={data.settings?.crPhone || CR_PHONE}
-        />
-        <p className="mt-3 text-zinc-400">
-          Welcome back, <span className="font-semibold text-white">{data.user.name}</span>.
-          Your attendance radar is live.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Badge label="Regular absences" value={data.summary.totalRegular} color="red" />
-          <Badge label="Condoned leaves" value={data.summary.totalCondoned} color="violet" />
-          <Badge label="Subjects tracked" value={data.subjectStats.length} color="cyan" />
+
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-8">
+          <div className="pr-10 lg:pr-0">
+            <p className="text-xs uppercase tracking-[0.35em] text-cyan-400">
+              {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
+            </p>
+            <h1 className="mt-2 text-2xl font-black text-white md:text-4xl">
+              MSM Control Center
+            </h1>
+            <p className="mt-1 text-sm text-zinc-400">
+              Class Representative:{" "}
+              <span className="font-bold text-white">
+                {data.settings?.crName || CR_FULL_NAME}
+              </span>
+            </p>
+            <CrContact
+              crName={data.settings?.crName || CR_FULL_NAME}
+              crPhone={data.settings?.crPhone || CR_PHONE}
+            />
+            <p className="mt-3 text-zinc-400">
+              Welcome back, <span className="font-semibold text-white">{data.user.name}</span>.
+              Your attendance radar is live.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Badge label="Regular absences" value={data.summary.totalRegular} color="red" />
+              <Badge label="Condoned leaves" value={data.summary.totalCondoned} color="violet" />
+              <Badge label="Subjects tracked" value={data.subjectStats.length} color="cyan" />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-black/25 p-4 lg:mt-8 lg:p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-violet-300">
+              The Kootlers · MSM
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-300">
+              MSM, also known as <strong className="text-white">Kootlers</strong>, is a cohort of{" "}
+              <strong className="text-white">59</strong> wildly distinct personalities. Commanded by
+              our fearless heroine and Class Representative,{" "}
+              <strong className="text-white">Bhavya</strong>, we have successfully stressed out more
+              professors than any batch before us, while consistently delivering some of the highest
+              placement packages in the cohort. Chaos, ambition, and questionable academic decisions
+              — that&apos;s the Kootlers way.
+            </p>
+          </div>
         </div>
       </motion.section>
 
