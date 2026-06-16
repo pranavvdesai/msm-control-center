@@ -63,7 +63,7 @@ export function SubjectCard({
                 : "bg-cyan-500/20 text-cyan-300"
           )}
         >
-          {remainingLeaves} safe left
+          {remainingLeaves} {remainingLeaves === 1 ? "leave" : "leaves"} left
         </span>
       </div>
 
