@@ -5,26 +5,19 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { GlowButton } from "@/components/GlowButton";
 import { DeveloperBadge } from "@/components/DeveloperBadge";
-import { Shield, Zap, Users, TrendingUp, RotateCcw } from "lucide-react";
-
-const RAM_ROLL = "25M136";
+import { Shield, Zap, Users, TrendingUp } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [rollNumber, setRollNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
-  const [resetting, setResetting] = useState(false);
-
-  const isRam = rollNumber.trim().toUpperCase() === RAM_ROLL;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setInfo("");
 
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -41,33 +34,6 @@ export default function LoginPage() {
     }
 
     router.push(`/welcome?name=${encodeURIComponent(data.user.name)}`);
-  }
-
-  async function resetAndSignUpAgain() {
-    if (!isRam) return;
-    setResetting(true);
-    setError("");
-    setInfo("");
-
-    try {
-      const loginRes = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rollNumber, password }),
-      });
-      const loginData = await loginRes.json();
-      if (!loginRes.ok) throw new Error(loginData.error || "Login failed");
-
-      const resetRes = await fetch("/api/admin/reset-account", { method: "POST" });
-      const resetData = await resetRes.json();
-      if (!resetRes.ok) throw new Error(resetData.error || "Reset failed");
-
-      setInfo("Account reset. Log in again with your roll number to complete onboarding and test the welcome email.");
-      setPassword("");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Reset failed");
-    }
-    setResetting(false);
   }
 
   return (
@@ -145,27 +111,10 @@ export default function LoginPage() {
                 {error}
               </p>
             )}
-            {info && (
-              <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">
-                {info}
-              </p>
-            )}
             <GlowButton type="submit" className="w-full py-3 text-base" disabled={loading}>
               {loading ? "Signing in..." : "Launch Control Center →"}
             </GlowButton>
           </form>
-
-          {isRam && (
-            <button
-              type="button"
-              onClick={resetAndSignUpAgain}
-              disabled={resetting || !password}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-200 transition hover:bg-amber-500/10 disabled:opacity-50"
-            >
-              <RotateCcw className={`h-4 w-4 ${resetting ? "animate-spin" : ""}`} />
-              {resetting ? "Resetting..." : "Delete profile & sign up again (test welcome email)"}
-            </button>
-          )}
 
           <p className="mt-6 text-center text-xs text-zinc-600">
             Cohort password shared by CR. First login? You&apos;ll set up your profile next.

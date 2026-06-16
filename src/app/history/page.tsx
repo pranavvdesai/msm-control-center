@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { NavShell } from "@/components/NavShell";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatClassTimeRange } from "@/lib/utils";
 
 type LeaveRecord = {
   id: string;
@@ -51,7 +51,10 @@ export default function HistoryPage() {
                   <p className="text-sm text-zinc-500">{formatDate(leave.date)}</p>
                   {leave.timetableEntry && (
                     <p className="text-xs text-zinc-600">
-                      {leave.timetableEntry.startTime} – {leave.timetableEntry.endTime}
+                      {formatClassTimeRange(
+                        leave.timetableEntry.startTime,
+                        leave.timetableEntry.endTime
+                      )}
                     </p>
                   )}
                 </div>

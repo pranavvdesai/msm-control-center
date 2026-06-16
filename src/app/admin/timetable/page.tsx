@@ -9,6 +9,7 @@ export default function AdminTimetablePage() {
   const [message, setMessage] = useState("");
   const [userName, setUserName] = useState("");
   const [canUpload, setCanUpload] = useState(false);
+  const [canAdmin, setCanAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [uploadResult, setUploadResult] = useState<{
@@ -23,6 +24,7 @@ export default function AdminTimetablePage() {
       .then((d) => {
         setUserName(d.user?.name || "");
         setCanUpload(!!d.user?.canUpload);
+        setCanAdmin(!!d.user?.canAdmin);
       });
   }, []);
 
@@ -68,7 +70,7 @@ export default function AdminTimetablePage() {
   }
 
   return (
-    <NavShell userName={userName} canUpload>
+    <NavShell userName={userName} canUpload canAdmin={canAdmin} isAdmin>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">Timetable Upload</h1>
         <p className="text-zinc-400">

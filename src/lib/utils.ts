@@ -35,8 +35,9 @@ export function endOfDay(date: Date | string) {
   return d;
 }
 
-/** TAPMI Excel slots: 8–11 AM, 12 noon, 1–7 PM when AM/PM omitted */
+/** TAPMI Excel slots: 8–11 AM, 12 noon, 1–7 PM when AM/PM omitted; 13–23 = 24h */
 function bareHourTo24(h: number): number {
+  if (h >= 13 && h <= 23) return h;
   if (h >= 8 && h <= 11) return h;
   if (h === 12) return 12;
   if (h >= 1 && h <= 7) return h + 12;
@@ -81,11 +82,28 @@ export function normalizeClassTimePair(startTime: string, endTime: string) {
 
 function normalizeOneTime(time: string): string {
   const t = time.trim();
-  if (/AM|PM/i.test(t)) return t.replace(/\s+/g, " ");
+  const withMer = t.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
+  if (withMer) {
+    let h = parseInt(withMer[1], 10);
+    const m = withMer[2];
+    const pm = withMer[3].toUpperCase() === "PM";
+    if (pm && h !== 12) h += 12;
+    if (!pm && h === 12) h = 0;
+    return format12h(h, m);
+  }
   const bare = t.match(/^(\d{1,2}):(\d{2})/);
   if (!bare) return t;
   const h24 = bareHourTo24(parseInt(bare[1], 10));
   return format12h(h24, bare[2].padStart(2, "0"));
+}
+
+/** Always show times with AM/PM for UI (e.g. 08:45 AM – 10:00 AM) */
+export function formatClassTime(time: string): string {
+  return normalizeOneTime(time);
+}
+
+export function formatClassTimeRange(startTime: string, endTime: string): string {
+  return `${formatClassTime(startTime)} – ${formatClassTime(endTime)}`;
 }
 
 export function sortByStartTime<T extends { startTime: string }>(entries: T[]): T[] {

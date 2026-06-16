@@ -29,6 +29,7 @@ export default function CakeRadarPage() {
   const [allBirthdays, setAllBirthdays] = useState<Birthday[]>([]);
   const [userName, setUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [canAdmin, setCanAdmin] = useState(false);
   const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
 
   useEffect(() => {
@@ -37,6 +38,7 @@ export default function CakeRadarPage() {
       .then((d) => {
         setUserName(d.user?.name || "");
         setIsAdmin(d.user?.role === "ADMIN");
+        setCanAdmin(!!d.user?.canAdmin);
       });
   }, []);
 
@@ -61,7 +63,7 @@ export default function CakeRadarPage() {
   }
 
   return (
-    <NavShell userName={userName} isAdmin={isAdmin}>
+    <NavShell userName={userName} isAdmin={isAdmin} canAdmin={canAdmin}>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">🎂 Cake Radar</h1>
         <p className="text-zinc-400">

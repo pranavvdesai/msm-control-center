@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { normalizeClassTimePair } from "@/lib/utils";
-import { sessionCanUpload } from "@/lib/permissions";
+import { sessionIsRamAdmin } from "@/lib/permissions";
 
 export async function POST() {
   const session = await getSession();
-  if (!session || !(await sessionCanUpload(session))) {
+  if (!session || !(await sessionIsRamAdmin(session))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

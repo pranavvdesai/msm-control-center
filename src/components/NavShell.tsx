@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -11,6 +12,7 @@ import {
   Upload,
   Shield,
   Cake,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +22,7 @@ const navItems = [
   { href: "/timetable", label: "Timetable", icon: Clock },
   { href: "/cake-radar", label: "Cake Radar", icon: Cake },
   { href: "/history", label: "History", icon: History },
+  { href: "/admin", label: "Admin", icon: Settings, adminOnly: true },
   { href: "/admin/timetable", label: "Upload", icon: Upload, uploadOnly: true },
 ];
 
@@ -28,24 +31,49 @@ export function NavShell({
   userName,
   canUpload,
   isAdmin,
+  canAdmin,
 }: {
   children: React.ReactNode;
   userName?: string;
   canUpload?: boolean;
   isAdmin?: boolean;
+  canAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const showUpload = !!(canUpload || isAdmin);
+  const [mePerms, setMePerms] = useState<{ canAdmin: boolean; canUpload: boolean }>({
+    canAdmin: false,
+    canUpload: false,
+  });
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        const u = d.user;
+        if (!u) return;
+        const roll = u.rollNumber?.toUpperCase();
+        setMePerms({
+          canAdmin: !!u.canAdmin || roll === "25M136",
+          canUpload: !!u.canUpload || u.role === "ADMIN",
+        });
+      })
+      .catch(() => {});
+  }, []);
+
+  const showAdmin = !!(canAdmin ?? mePerms.canAdmin);
+  const showUpload = !!(canUpload || isAdmin || mePerms.canUpload);
 
   async function logout() {
     await fetch("/api/auth/login", { method: "DELETE" });
     router.push("/login");
   }
 
-  const visibleNav = navItems.filter(
-    (item) => !("uploadOnly" in item && item.uploadOnly) || showUpload
-  );
+  const visibleNav = navItems.filter((item) => {
+    if ("adminOnly" in item && item.adminOnly) return showAdmin;
+    if ("uploadOnly" in item && item.uploadOnly) return showUpload;
+    return true;
+  });
 
   return (
     <div className="relative min-h-screen bg-[#030014] text-zinc-100">

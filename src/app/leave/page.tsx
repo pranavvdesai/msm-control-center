@@ -5,7 +5,7 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { NavShell } from "@/components/NavShell";
 import { GlowButton } from "@/components/GlowButton";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatClassTimeRange } from "@/lib/utils";
 
 type Lecture = {
   id: string;
@@ -127,7 +127,7 @@ export default function LeavePage() {
                   >
                     <p className="font-medium text-white">{lec.subject.name}</p>
                     <p className="text-xs text-zinc-500">
-                      {lec.startTime} – {lec.endTime} · Max {lec.subject.credits} leaves
+                      {formatClassTimeRange(lec.startTime, lec.endTime)} · Max {lec.subject.credits} leaves
                     </p>
                   </button>
                 ))}

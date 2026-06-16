@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import fs from "fs";
+import path from "path";
 
 type BirthdayPerson = {
   name: string;
@@ -31,7 +33,8 @@ export function isEmailConfigured() {
 async function gmailSend(
   to: string,
   subject: string,
-  html: string
+  html: string,
+  attachments?: nodemailer.SendMailOptions["attachments"]
 ): Promise<SendResult> {
   const user = process.env.GMAIL_USER || "raaaampareek@gmail.com";
   const pass = process.env.GMAIL_APP_PASSWORD;
@@ -51,6 +54,7 @@ async function gmailSend(
       replyTo: getReplyTo(),
       subject,
       html,
+      attachments,
     });
     return { ok: true };
   } catch (err) {
@@ -92,9 +96,14 @@ async function resendSend(
   return { ok: true };
 }
 
-export async function sendEmail(to: string, subject: string, html: string) {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  attachments?: nodemailer.SendMailOptions["attachments"]
+) {
   if (process.env.GMAIL_APP_PASSWORD) {
-    const gmail = await gmailSend(to, subject, html);
+    const gmail = await gmailSend(to, subject, html, attachments);
     if (gmail.ok) return true;
   }
 
@@ -107,16 +116,29 @@ export async function sendEmail(to: string, subject: string, html: string) {
   return false;
 }
 
-export async function sendWelcomeEmail(person: WelcomePerson) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://msm-control-center.vercel.app";
-  const firstName = person.name.split(" ")[0];
-  const subject = `Namaste ${firstName}! Welcome to MSM Control Center 🙏`;
-  const ramImageUrl = `${appUrl}/images/ram-welcome.png`;
+function welcomeEmailAttachments(): nodemailer.SendMailOptions["attachments"] {
+  const imagePath = path.join(process.cwd(), "public/images/ram-welcome.png");
+  if (!fs.existsSync(imagePath)) return undefined;
+  return [
+    {
+      filename: "ram-welcome.png",
+      path: imagePath,
+      cid: "ram-welcome",
+    },
+  ];
+}
+
+function buildWelcomeEmailHtml(
+  person: WelcomePerson,
+  firstName: string,
+  appUrl: string,
+  imageSrc: string
+) {
   const whatsappUrl = `https://wa.me/918302854099?text=${encodeURIComponent(
     "Hello Ram, loved MSM Control Center! Sharing my feedback — "
   )}`;
 
-  const html = `
+  return `
     <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; background: #030014; color: #f4f4f5; padding: 32px; border-radius: 16px;">
       <div style="margin-bottom: 20px; padding: 14px 16px; background: #0a0a1a; border-radius: 12px; border: 1px solid #fbbf2433;">
         <p style="margin: 0; color: #fbbf24; font-size: 13px; line-height: 1.6;">
@@ -125,7 +147,7 @@ export async function sendWelcomeEmail(person: WelcomePerson) {
         </p>
       </div>
       <img
-        src="${ramImageUrl}"
+        src="${imageSrc}"
         alt="Ram — MSM Control Center"
         width="200"
         style="display: block; margin: 0 auto 20px; border-radius: 16px; border: 2px solid #22d3ee33;"
@@ -167,14 +189,24 @@ export async function sendWelcomeEmail(person: WelcomePerson) {
       </p>
     </div>
   `;
+}
 
-  const sent = await sendEmail(person.collegeEmail, subject, html);
+export async function sendWelcomeEmail(person: WelcomePerson, subjectPrefix = "") {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://msm-control-center.vercel.app";
+  const firstName = person.name.split(" ")[0];
+  const subject = `${subjectPrefix}Namaste ${firstName}! Welcome to MSM Control Center 🙏`;
+  const attachments = welcomeEmailAttachments();
+  const imageSrc = attachments ? "cid:ram-welcome" : `${appUrl}/images/ram-welcome.png`;
+  const html = buildWelcomeEmailHtml(person, firstName, appUrl, imageSrc);
+
+  const sent = await sendEmail(person.collegeEmail, subject, html, attachments);
   return { sent: sent ? 1 : 0, skipped: !isEmailConfigured() };
 }
 
 export async function sendBirthdayEmails(
   birthdayPeople: BirthdayPerson[],
-  recipientEmails: string[]
+  recipientEmails: string[],
+  subjectPrefix = ""
 ) {
   if (!isEmailConfigured()) {
     console.log("No email provider configured — skipping birthday emails");
@@ -188,9 +220,10 @@ export async function sendBirthdayEmails(
   const names = birthdayPeople.map((p) => p.name).join(", ");
   const rolls = birthdayPeople.map((p) => p.rollNumber).join(", ");
   const subject =
-    birthdayPeople.length === 1
+    subjectPrefix +
+    (birthdayPeople.length === 1
       ? `🎂 Happy Birthday ${birthdayPeople[0].name}! — MSM Control Center`
-      : `🎂 Birthday Alert! ${birthdayPeople.length} MSM friends celebrate today`;
+      : `🎂 Birthday Alert! ${birthdayPeople.length} MSM friends celebrate today`);
 
   const html = `
     <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; background: #030014; color: #f4f4f5; padding: 32px; border-radius: 16px;">

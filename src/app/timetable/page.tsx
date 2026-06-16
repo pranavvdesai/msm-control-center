@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { NavShell } from "@/components/NavShell";
-import { formatDate, sortByStartTime } from "@/lib/utils";
+import { formatDate, formatClassTimeRange, sortByStartTime } from "@/lib/utils";
 
 type Entry = {
   id: string;
@@ -23,12 +23,15 @@ export default function TimetablePage() {
   const [userName, setUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
+  const [canAdmin, setCanAdmin] = useState(false);
+
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((d) => {
         setUserName(d.user?.name || "");
         setIsAdmin(d.user?.role === "ADMIN");
+        setCanAdmin(!!d.user?.canAdmin);
       });
   }, []);
 
@@ -48,7 +51,7 @@ export default function TimetablePage() {
   const sortedDates = Object.keys(grouped).sort();
 
   return (
-    <NavShell userName={userName} isAdmin={isAdmin}>
+    <NavShell userName={userName} isAdmin={isAdmin} canAdmin={canAdmin}>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Timetable</h1>
@@ -88,7 +91,7 @@ export default function TimetablePage() {
                         </p>
                       </div>
                       <span className="text-sm font-medium text-violet-300">
-                        {e.startTime} – {e.endTime}
+                        {formatClassTimeRange(e.startTime, e.endTime)}
                       </span>
                     </div>
                   ))}

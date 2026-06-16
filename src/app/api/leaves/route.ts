@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { buildLeaveFeedMessage, buildClassmateAlert } from "@/lib/alerts";
-import { endOfDay, startOfDay } from "@/lib/utils";
+import { endOfDay, normalizeTimetableEntries, startOfDay } from "@/lib/utils";
 import { maxLeavesForCredits } from "@/lib/utils";
 
 export async function GET(request: Request) {
@@ -20,11 +20,11 @@ export async function GET(request: Request) {
 
   if (dateParam) {
     const date = new Date(dateParam);
-    const entries = await prisma.timetableEntry.findMany({
+    const raw = await prisma.timetableEntry.findMany({
       where: { date: { gte: startOfDay(date), lte: endOfDay(date) } },
       include: { subject: true },
-      orderBy: { startTime: "asc" },
     });
+    const entries = normalizeTimetableEntries(raw);
     return NextResponse.json({ entries, leaves });
   }
 

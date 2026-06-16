@@ -10,10 +10,11 @@ import { CrContact } from "@/components/CrContact";
 import { ClassReminderBanner } from "@/components/ClassReminderBanner";
 import { WeeklyLeaveReminderBanner } from "@/components/WeeklyLeaveReminderBanner";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
+import { formatClassTimeRange } from "@/lib/utils";
 import { RefreshCw } from "lucide-react";
 
 type DashboardData = {
-  user: { name: string; role: string };
+  user: { name: string; role: string; canAdmin?: boolean };
   settings: { crName: string; crPhone?: string; cohortName: string; cohortFull: string; termInfo?: string } | null;
   subjectStats: Array<{
     subjectName: string;
@@ -77,7 +78,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <NavShell userName={data.user.name} isAdmin={data.user.role === "ADMIN"}>
+    <NavShell
+      userName={data.user.name}
+      isAdmin={data.user.role === "ADMIN"}
+      canAdmin={data.user.canAdmin}
+    >
       <motion.section
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -161,7 +166,7 @@ export default function DashboardPage() {
                         <p className="mt-1 text-xs font-medium text-cyan-400">{c.subject.code}</p>
                       </div>
                       <span className="rounded-full bg-violet-500/20 px-2.5 py-0.5 text-xs text-violet-200">
-                        {c.startTime} – {c.endTime}
+                        {formatClassTimeRange(c.startTime, c.endTime)}
                       </span>
                     </div>
                     <p className="mt-2 text-xs text-zinc-500">

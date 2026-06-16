@@ -10,6 +10,7 @@ import {
   startOfDay,
 } from "@/lib/utils";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
+import { isRamAdmin } from "@/lib/permissions";
 
 export async function GET() {
   const session = await getSession();
@@ -41,7 +42,6 @@ export async function GET() {
       date: { gte: startOfDay(today), lte: endOfDay(today) },
     },
     include: { subject: true },
-    orderBy: [{ startTime: "asc" }],
   });
 
   const todayClasses = normalizeTimetableEntries(rawTodayClasses);
@@ -79,7 +79,7 @@ export async function GET() {
   });
 
   return NextResponse.json({
-    user: session,
+    user: { ...session, canAdmin: isRamAdmin(dbUser?.rollNumber) },
     settings: settings
       ? settings
       : {
