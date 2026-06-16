@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { NavShell } from "@/components/NavShell";
 import { GlowButton } from "@/components/GlowButton";
-import { Mail, Cake, CalendarDays, RotateCcw, Clock, Loader2 } from "lucide-react";
+import { Mail, Cake, CalendarDays, Clock, Loader2 } from "lucide-react";
 
 type EmailType = "welcome" | "birthday" | "weekly";
 
@@ -16,7 +16,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -66,27 +65,6 @@ export default function AdminPage() {
       return;
     }
     setMessage(`Timetable fixed: ${data.updated} of ${data.total} entries updated with AM/PM.`);
-  }
-
-  async function resetProfile() {
-    if (!confirm("Delete your profile and sign up again? Use this to test the real welcome email flow.")) {
-      return;
-    }
-    setResetting(true);
-    setMessage("");
-    setError("");
-
-    const res = await fetch("/api/admin/reset-account", { method: "POST" });
-    const data = await res.json();
-    setResetting(false);
-
-    if (!res.ok) {
-      setError(data.error || "Reset failed");
-      return;
-    }
-
-    await fetch("/api/auth/login", { method: "DELETE" });
-    router.push("/login");
   }
 
   if (!canAdmin) {
@@ -195,19 +173,6 @@ export default function AdminPage() {
             {loading === "timetable" ? "Fixing..." : "Fix all timetable times"}
           </GlowButton>
         </div>
-      </section>
-
-      <section className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-amber-200">
-          <RotateCcw className="h-5 w-5" />
-          Reset profile (welcome flow)
-        </h2>
-        <p className="mt-1 mb-4 text-sm text-zinc-400">
-          Delete your account and go through onboarding again to trigger the real welcome email on signup.
-        </p>
-        <GlowButton variant="secondary" disabled={resetting} onClick={resetProfile}>
-          {resetting ? "Resetting..." : "Delete profile & sign up again"}
-        </GlowButton>
       </section>
     </NavShell>
   );
