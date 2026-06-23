@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { canUpload, isRamAdmin } from "@/lib/permissions";
+import { canUpload, canAccessCrBoard, isRamAdmin, canManageTimetable } from "@/lib/permissions";
 
 export async function GET() {
   const session = await getSession();
@@ -26,6 +26,8 @@ export async function GET() {
       ...user,
       canUpload: canUpload(user.rollNumber) || user.role === "ADMIN",
       canAdmin: isRamAdmin(user.rollNumber),
+      canCrBoard: canAccessCrBoard(user.rollNumber),
+      canManageTimetable: canManageTimetable(user.rollNumber),
     },
   });
 }
