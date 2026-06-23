@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "MSM Control Center",
   },
   formatDetection: {
@@ -20,7 +20,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
-  themeColor: "#030014",
+  themeColor: "#f8fafc",
 };
 
 export default function RootLayout({
@@ -29,8 +29,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full overflow-x-hidden antialiased">{children}</body>
+    <html lang="en" className="h-full light" style={{ colorScheme: "light" }}>
+      <body className="min-h-full overflow-x-hidden bg-slate-50 text-slate-900 antialiased">
+        {children}
+      </body>
     </html>
   );
 }
