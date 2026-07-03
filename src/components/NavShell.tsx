@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -105,7 +105,9 @@ export function NavShell({
 
   return (
     <div className="relative min-h-screen bg-slate-100 text-slate-900">
-      <RamBirthdaySplash rollNumber={rollNumber} />
+      <Suspense fallback={null}>
+        <RamBirthdaySplash rollNumber={rollNumber} />
+      </Suspense>
       <PageVisitTracker />
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-32 left-0 h-72 w-72 rounded-full bg-cyan-200/50 blur-3xl" />

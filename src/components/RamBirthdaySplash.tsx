@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cake, PartyPopper, Sparkles, X } from "lucide-react";
 import { GlowButton } from "@/components/GlowButton";
@@ -95,15 +96,22 @@ function Firework({ x, delay }: { x: string; delay: number }) {
 }
 
 export function RamBirthdaySplash({ rollNumber }: { rollNumber: string | null }) {
+  const searchParams = useSearchParams();
+  const replay = searchParams.get("replay-birthday") === "1";
   const [open, setOpen] = useState(false);
   const isRam = isRamRoll(rollNumber);
 
   useEffect(() => {
     if (!rollNumber || !isRamBirthdayToday()) return;
     const key = getRamBirthdaySplashStorageKey();
+    if (replay) {
+      localStorage.removeItem(key);
+      setOpen(true);
+      return;
+    }
     if (localStorage.getItem(key)) return;
     setOpen(true);
-  }, [rollNumber]);
+  }, [rollNumber, replay]);
 
   function dismiss() {
     localStorage.setItem(getRamBirthdaySplashStorageKey(), "1");
