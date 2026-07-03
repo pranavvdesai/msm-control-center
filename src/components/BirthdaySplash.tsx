@@ -111,13 +111,27 @@ export function BirthdaySplash() {
         setPayload(detail);
       }
     }
+    function onTryOpen(e: Event) {
+      const detail = (e as CustomEvent<BirthdayPayload>).detail;
+      if (detail?.active) {
+        setPayload(detail);
+        tryOpen(detail);
+      }
+    }
     window.addEventListener("msm-replay-birthday", onReplay);
     window.addEventListener("msm-birthday-active", onActive);
+    window.addEventListener("msm-birthday-try-open", onTryOpen);
     return () => {
       window.removeEventListener("msm-replay-birthday", onReplay);
       window.removeEventListener("msm-birthday-active", onActive);
+      window.removeEventListener("msm-birthday-try-open", onTryOpen);
     };
   }, [payload, tryOpen, loadBirthday]);
+
+  useEffect(() => {
+    if (shouldBlockPath || !payload?.active) return;
+    tryOpen(payload);
+  }, [shouldBlockPath, payload, tryOpen]);
 
   useEffect(() => {
     if (open && payload?.active && !shouldReplayBirthdaySplash()) {

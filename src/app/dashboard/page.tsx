@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { NavShell } from "@/components/NavShell";
 import { SubjectCard } from "@/components/SubjectCard";
@@ -67,6 +67,7 @@ export default function DashboardPage() {
   const [birthday, setBirthday] = useState<BirthdayToday | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [sendingWish, setSendingWish] = useState(false);
+  const birthdaySplashRequested = useRef(false);
 
   const loadBirthday = useCallback(async () => {
     const res = await fetch("/api/birthday/today", { credentials: "include", cache: "no-store" });
@@ -89,6 +90,12 @@ export default function DashboardPage() {
     const interval = setInterval(load, 30000);
     return () => clearInterval(interval);
   }, [load]);
+
+  useEffect(() => {
+    if (!birthday?.active || birthdaySplashRequested.current) return;
+    birthdaySplashRequested.current = true;
+    window.dispatchEvent(new CustomEvent("msm-birthday-try-open", { detail: birthday }));
+  }, [birthday]);
 
   function handleRefresh() {
     setRefreshing(true);
