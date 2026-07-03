@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { NavShell } from "@/components/NavShell";
 import { SubjectCard } from "@/components/SubjectCard";
 import { SocialFeed } from "@/components/SocialFeed";
 import { RiskMeter } from "@/components/RiskMeter";
 import { CrContact } from "@/components/CrContact";
+import { BirthdaySplash } from "@/components/BirthdaySplash";
 import { BirthdayDayBanner } from "@/components/BirthdayDayBanner";
 import { BirthdayWishToasts } from "@/components/BirthdayWishToasts";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
@@ -67,7 +68,6 @@ export default function DashboardPage() {
   const [birthday, setBirthday] = useState<BirthdayToday | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [sendingWish, setSendingWish] = useState(false);
-  const birthdaySplashRequested = useRef(false);
 
   const loadBirthday = useCallback(async () => {
     const res = await fetch("/api/birthday/today", { credentials: "include", cache: "no-store" });
@@ -90,12 +90,6 @@ export default function DashboardPage() {
     const interval = setInterval(load, 30000);
     return () => clearInterval(interval);
   }, [load]);
-
-  useEffect(() => {
-    if (!birthday?.active || birthdaySplashRequested.current) return;
-    birthdaySplashRequested.current = true;
-    window.dispatchEvent(new CustomEvent("msm-birthday-try-open", { detail: birthday }));
-  }, [birthday]);
 
   function handleRefresh() {
     setRefreshing(true);
@@ -134,21 +128,26 @@ export default function DashboardPage() {
 
   if (!data) {
     return (
-      <NavShell>
-        <div className="flex h-64 flex-col items-center justify-center gap-3 text-slate-500">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="h-8 w-8 rounded-full border-2 border-cyan-200 border-t-cyan-500"
-          />
-          <p>Initializing Control Center...</p>
-        </div>
-      </NavShell>
+      <>
+        <BirthdaySplash />
+        <NavShell>
+          <div className="flex h-64 flex-col items-center justify-center gap-3 text-slate-500">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="h-8 w-8 rounded-full border-2 border-cyan-200 border-t-cyan-500"
+            />
+            <p>Initializing Control Center...</p>
+          </div>
+        </NavShell>
+      </>
     );
   }
 
   return (
-    <NavShell
+    <>
+      <BirthdaySplash />
+      <NavShell
       userName={data.user.name}
       isAdmin={data.user.role === "ADMIN"}
       canAdmin={data.user.canAdmin}
@@ -295,6 +294,7 @@ export default function DashboardPage() {
         </div>
       </div>
     </NavShell>
+    </>
   );
 }
 

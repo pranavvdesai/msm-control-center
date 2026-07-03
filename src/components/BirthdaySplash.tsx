@@ -58,7 +58,7 @@ export function BirthdaySplash() {
 
   const tryOpen = useCallback(
     (data: BirthdayPayload, force = false) => {
-      if (!data.active || !data.birthdayPeople?.length || shouldBlockPath) return;
+      if (!mounted || !data.active || !data.birthdayPeople?.length || shouldBlockPath) return;
 
       if (
         force ||
@@ -73,7 +73,7 @@ export function BirthdaySplash() {
       if (wasBirthdaySplashSeenToday()) return;
       setOpen(true);
     },
-    [shouldBlockPath]
+    [mounted, shouldBlockPath]
   );
 
   const loadBirthday = useCallback(async () => {
@@ -97,19 +97,22 @@ export function BirthdaySplash() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     loadBirthday();
-  }, [loadBirthday]);
+  }, [mounted, loadBirthday]);
+
+  useEffect(() => {
+    if (!mounted || shouldBlockPath || !payload?.active) return;
+    tryOpen(payload);
+  }, [mounted, shouldBlockPath, payload, tryOpen]);
 
   useEffect(() => {
     function onReplay() {
       if (payload?.active) tryOpen(payload, true);
       else loadBirthday();
-    }
-    function onActive(e: Event) {
-      const detail = (e as CustomEvent<BirthdayPayload>).detail;
-      if (detail?.active) {
-        setPayload(detail);
-      }
     }
     function onTryOpen(e: Event) {
       const detail = (e as CustomEvent<BirthdayPayload>).detail;
@@ -119,25 +122,12 @@ export function BirthdaySplash() {
       }
     }
     window.addEventListener("msm-replay-birthday", onReplay);
-    window.addEventListener("msm-birthday-active", onActive);
     window.addEventListener("msm-birthday-try-open", onTryOpen);
     return () => {
       window.removeEventListener("msm-replay-birthday", onReplay);
-      window.removeEventListener("msm-birthday-active", onActive);
       window.removeEventListener("msm-birthday-try-open", onTryOpen);
     };
   }, [payload, tryOpen, loadBirthday]);
-
-  useEffect(() => {
-    if (shouldBlockPath || !payload?.active) return;
-    tryOpen(payload);
-  }, [shouldBlockPath, payload, tryOpen]);
-
-  useEffect(() => {
-    if (open && payload?.active && !shouldReplayBirthdaySplash()) {
-      markBirthdaySplashSeen();
-    }
-  }, [open, payload?.active]);
 
   function dismiss() {
     markBirthdaySplashSeen();

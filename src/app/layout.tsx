@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { GlobalBirthdaySplash } from "@/components/GlobalRamBirthdaySplash";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -45,7 +44,6 @@ export default function RootLayout({
           `}
         </Script>
         {children}
-        <GlobalBirthdaySplash />
       </body>
     </html>
   );

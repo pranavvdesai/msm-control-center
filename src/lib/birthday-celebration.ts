@@ -3,7 +3,7 @@ import { birthdayMatchesDate } from "@/lib/ops/ist-calendar";
 import { getIstDateString } from "@/lib/play/ist-date";
 import { firstName } from "@/lib/utils";
 
-export const BIRTHDAY_SPLASH_KEY_PREFIX = "msm-birthday-splash-dismiss";
+export const BIRTHDAY_SPLASH_KEY_PREFIX = "msm-birthday-splash-dismiss-v2";
 export const BIRTHDAY_REPLAY_SESSION_KEY = "msm-replay-birthday";
 
 export type BirthdayPerson = {
