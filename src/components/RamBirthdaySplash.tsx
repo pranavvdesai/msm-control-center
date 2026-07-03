@@ -1,19 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cake, PartyPopper, Sparkles, X } from "lucide-react";
 import { GlowButton } from "@/components/GlowButton";
 import {
-  getRamBirthdaySplashStorageKey,
+  clearRamBirthdayReplayFlag,
+  clearRamBirthdaySplashSeen,
+  enableRamBirthdayReplay,
   isRamBirthdayToday,
   isRamRoll,
+  markRamBirthdaySplashSeen,
   RAM_BIRTHDAY_POEM,
   RAM_DISPLAY_NAME,
   RAM_FIRST_NAME,
   ramBirthdayWhatsAppUrl,
+  shouldReplayRamBirthdaySplash,
+  wasRamBirthdaySplashSeenToday,
 } from "@/lib/ram-birthday";
+import { RAM_ROLL } from "@/lib/permissions";
+
+const BLOCKED_PATHS = ["/login", "/register", "/welcome"];
 
 const CONFETTI_COLORS = [
   "#fbbf24",
@@ -95,26 +103,64 @@ function Firework({ x, delay }: { x: string; delay: number }) {
   );
 }
 
-export function RamBirthdaySplash({ rollNumber }: { rollNumber: string | null }) {
+export function RamBirthdaySplash() {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const replay = searchParams.get("replay-birthday") === "1";
+  const replayFromUrl = searchParams.get("replay-birthday") === "1";
+  const [rollNumber, setRollNumber] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const isRam = isRamRoll(rollNumber);
 
-  useEffect(() => {
-    if (!rollNumber || !isRamBirthdayToday()) return;
-    const key = getRamBirthdaySplashStorageKey();
-    if (replay) {
-      localStorage.removeItem(key);
+  const shouldBlockPath = useMemo(
+    () => BLOCKED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`)),
+    [pathname]
+  );
+
+  const tryOpenSplash = useCallback(
+    (forceReplay = false) => {
+      if (!rollNumber || !isRamBirthdayToday() || shouldBlockPath) return;
+
+      if (forceReplay || replayFromUrl || shouldReplayRamBirthdaySplash()) {
+        clearRamBirthdaySplashSeen();
+        setOpen(true);
+        return;
+      }
+
+      if (wasRamBirthdaySplashSeenToday()) return;
       setOpen(true);
-      return;
+    },
+    [rollNumber, replayFromUrl, shouldBlockPath]
+  );
+
+  useEffect(() => {
+    if (replayFromUrl) enableRamBirthdayReplay();
+  }, [replayFromUrl]);
+
+  useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : { user: null }))
+      .then((d) => {
+        const roll = d.user?.rollNumber?.toUpperCase() ?? null;
+        setRollNumber(roll);
+      })
+      .catch(() => setRollNumber(null));
+  }, []);
+
+  useEffect(() => {
+    tryOpenSplash();
+  }, [tryOpenSplash]);
+
+  useEffect(() => {
+    function onReplay() {
+      tryOpenSplash(true);
     }
-    if (localStorage.getItem(key)) return;
-    setOpen(true);
-  }, [rollNumber, replay]);
+    window.addEventListener("msm-replay-birthday", onReplay);
+    return () => window.removeEventListener("msm-replay-birthday", onReplay);
+  }, [tryOpenSplash]);
 
   function dismiss() {
-    localStorage.setItem(getRamBirthdaySplashStorageKey(), "1");
+    markRamBirthdaySplashSeen();
+    clearRamBirthdayReplayFlag();
     setOpen(false);
   }
 
@@ -122,7 +168,7 @@ export function RamBirthdaySplash({ rollNumber }: { rollNumber: string | null })
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -284,6 +330,11 @@ export function RamBirthdaySplash({ rollNumber }: { rollNumber: string | null })
                 {isRam ? "Thank you, MSM family 🙏" : "Got it — I'll wish him!"}
               </GlowButton>
             </motion.div>
+            {isRam && rollNumber === RAM_ROLL && (
+              <p className="mt-4 text-center text-[11px] text-zinc-500">
+                Tap the MSM logo 3× anytime today to replay this.
+              </p>
+            )}
           </motion.div>
         </motion.div>
       )}

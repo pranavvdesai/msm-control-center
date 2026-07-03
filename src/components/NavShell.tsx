@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PageVisitTracker } from "@/components/PageVisitTracker";
-import { RamBirthdaySplash } from "@/components/RamBirthdaySplash";
+import { RAM_ROLL } from "@/lib/permissions";
 
 const navItems = [
   { href: "/about", label: "About", icon: Users },
@@ -60,6 +60,7 @@ export function NavShell({
   const pathname = usePathname();
   const router = useRouter();
   const [rollNumber, setRollNumber] = useState<string | null>(null);
+  const ramLogoTaps = useRef(0);
   const [mePerms, setMePerms] = useState<{
     canAdmin: boolean;
     canUpload: boolean;
@@ -71,21 +72,31 @@ export function NavShell({
   });
 
   useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => r.json())
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : { user: null }))
       .then((d) => {
         const u = d.user;
         if (!u) return;
         const roll = u.rollNumber?.toUpperCase() ?? null;
         setRollNumber(roll);
         setMePerms({
-          canAdmin: !!u.canAdmin || roll === "25M136",
+          canAdmin: !!u.canAdmin || roll === RAM_ROLL,
           canUpload: !!u.canUpload || u.role === "ADMIN",
           canCrBoard: !!u.canCrBoard || roll === "25M149",
         });
       })
       .catch(() => {});
   }, []);
+
+  function handleLogoTap(e: React.MouseEvent) {
+    if (rollNumber !== RAM_ROLL) return;
+    ramLogoTaps.current += 1;
+    if (ramLogoTaps.current >= 3) {
+      e.preventDefault();
+      ramLogoTaps.current = 0;
+      window.dispatchEvent(new Event("msm-replay-birthday"));
+    }
+  }
 
   const showAdmin = !!(canAdmin ?? mePerms.canAdmin);
   const showUpload = !!(canUpload || isAdmin || mePerms.canUpload);
@@ -105,9 +116,6 @@ export function NavShell({
 
   return (
     <div className="relative min-h-screen bg-slate-100 text-slate-900">
-      <Suspense fallback={null}>
-        <RamBirthdaySplash rollNumber={rollNumber} />
-      </Suspense>
       <PageVisitTracker />
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-32 left-0 h-72 w-72 rounded-full bg-cyan-200/50 blur-3xl" />
@@ -116,7 +124,11 @@ export function NavShell({
 
       <header className="safe-top sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2.5 sm:px-4 sm:py-3">
-          <Link href="/dashboard" className="flex min-w-0 shrink items-center gap-2 sm:gap-3">
+          <Link
+            href="/dashboard"
+            onClick={handleLogoTap}
+            className="flex min-w-0 shrink items-center gap-2 sm:gap-3"
+          >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-600 to-violet-600 shadow-md sm:h-9 sm:w-9">
               <Shield className="h-4 w-4 text-white sm:h-5 sm:w-5" />
             </div>
