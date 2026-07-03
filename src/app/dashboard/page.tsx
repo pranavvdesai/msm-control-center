@@ -10,9 +10,24 @@ import { CrContact } from "@/components/CrContact";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { formatClassTimeRange } from "@/lib/utils";
 import { RefreshCw } from "lucide-react";
+import { RamBirthdayBanner } from "@/components/RamBirthdayBanner";
+import {
+  clearRamBirthdaySplashSeen,
+  enableRamBirthdayReplay,
+} from "@/lib/ram-birthday";
+
+type RamBirthdayData = {
+  active: boolean;
+  istDate?: string;
+  isRam?: boolean;
+  firstName?: string;
+  displayName?: string;
+  poem?: string | null;
+};
 
 type DashboardData = {
   user: { name: string; role: string; canAdmin?: boolean };
+  ramBirthday?: RamBirthdayData;
   settings: { crName: string; crPhone?: string; cohortName: string; cohortFull: string; termInfo?: string } | null;
   subjectStats: Array<{
     subjectName: string;
@@ -44,9 +59,17 @@ export default function DashboardPage() {
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    const dash = await fetch("/api/dashboard").then((r) => r.json());
+    const dash = await fetch("/api/dashboard", { credentials: "include", cache: "no-store" }).then(
+      (r) => r.json()
+    );
     setData(dash);
     setRefreshing(false);
+
+    if (dash.ramBirthday?.active) {
+      window.dispatchEvent(
+        new CustomEvent("msm-ram-birthday-active", { detail: dash.ramBirthday })
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -60,14 +83,26 @@ export default function DashboardPage() {
     load();
   }
 
+  function openBirthdaySplash() {
+    clearRamBirthdaySplashSeen();
+    enableRamBirthdayReplay();
+    if (data?.ramBirthday?.active) {
+      window.dispatchEvent(
+        new CustomEvent("msm-ram-birthday-active", { detail: data.ramBirthday })
+      );
+    } else {
+      window.dispatchEvent(new Event("msm-replay-birthday"));
+    }
+  }
+
   if (!data) {
     return (
       <NavShell>
-        <div className="flex h-64 flex-col items-center justify-center gap-3 text-zinc-500">
+        <div className="flex h-64 flex-col items-center justify-center gap-3 text-slate-500">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="h-8 w-8 rounded-full border-2 border-cyan-500/30 border-t-cyan-500"
+            className="h-8 w-8 rounded-full border-2 border-cyan-200 border-t-cyan-500"
           />
           <p>Initializing Control Center...</p>
         </div>
@@ -81,32 +116,38 @@ export default function DashboardPage() {
       isAdmin={data.user.role === "ADMIN"}
       canAdmin={data.user.canAdmin}
     >
+      {data.ramBirthday?.active && (
+        <RamBirthdayBanner
+          isRam={!!data.ramBirthday.isRam}
+          onOpenSplash={openBirthdaySplash}
+        />
+      )}
+
       <motion.section
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative mb-4 overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-[#0a0a1a] to-violet-500/10 p-4 sm:mb-6 sm:rounded-3xl sm:p-6"
+        className="relative mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:mb-6 sm:rounded-3xl sm:p-6"
       >
         <div className="absolute right-3 top-3 z-10 sm:right-4 sm:top-4">
           <button
             onClick={handleRefresh}
-            className="rounded-lg border border-white/10 p-2 text-zinc-400 transition hover:text-cyan-400"
+            className="rounded-lg border border-slate-200 p-2 text-slate-500 transition hover:text-cyan-700"
             aria-label="Refresh"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
           </button>
         </div>
 
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-8">
-          <div className="min-w-0 pr-8 sm:pr-0">
-            <p className="text-[10px] uppercase leading-relaxed tracking-[0.2em] text-cyan-400 sm:text-xs sm:tracking-[0.35em]">
+        <div className="min-w-0 pr-8 sm:pr-0">
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-cyan-700 sm:text-xs sm:tracking-[0.3em]">
               {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
             </p>
-            <h1 className="mt-2 text-xl font-black text-white sm:text-2xl md:text-4xl">
+            <h1 className="mt-2 text-2xl font-black leading-tight text-slate-900 sm:text-2xl md:text-4xl">
               MSM Control Center
             </h1>
-            <p className="mt-1 text-sm text-zinc-400">
+            <p className="mt-2 text-base text-slate-600 sm:mt-1 sm:text-sm">
               Class Representative:{" "}
-              <span className="font-bold text-white">
+              <span className="font-bold text-slate-900">
                 {data.settings?.crName || CR_FULL_NAME}
               </span>
             </p>
@@ -114,40 +155,24 @@ export default function DashboardPage() {
               crName={data.settings?.crName || CR_FULL_NAME}
               crPhone={data.settings?.crPhone || CR_PHONE}
             />
-            <p className="mt-3 text-zinc-400">
-              Welcome back, <span className="font-semibold text-white">{data.user.name}</span>.
+            <p className="mt-3 text-base leading-relaxed text-slate-600 sm:text-sm">
+              Welcome back, <span className="font-semibold text-slate-900">{data.user.name}</span>.
               Your attendance radar is live.
             </p>
-            <div className="mt-4 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+            <div className="mt-4 grid grid-cols-1 gap-3 min-[420px]:grid-cols-3 sm:flex sm:flex-wrap sm:gap-3">
               <Badge label="Regular absences" value={data.summary.totalRegular} color="red" />
               <Badge label="Condoned leaves" value={data.summary.totalCondoned} color="violet" />
               <Badge label="Subjects tracked" value={data.subjectStats.length} color="cyan" />
             </div>
           </div>
-
-          <div className="min-w-0 rounded-2xl border border-white/10 bg-black/25 p-3 sm:p-4 lg:mt-8 lg:p-5">
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-violet-300">
-              The Kootlers · MSM
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-zinc-300">
-              MSM, also known as <strong className="text-white">Kootlers</strong>, is a cohort of{" "}
-              <strong className="text-white">59</strong> wildly distinct personalities. Commanded by
-              our fearless heroine and Class Representative,{" "}
-              <strong className="text-white">Bhavya</strong>, we have successfully stressed out more
-              professors than any batch before us, while consistently delivering some of the highest
-              placement packages in the cohort. Chaos, ambition, and questionable academic decisions
-              — that&apos;s the Kootlers way.
-            </p>
-          </div>
-        </div>
       </motion.section>
 
-      <div className="mb-4 rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-[#0a0a1a] to-cyan-500/5 p-4 sm:mb-6 sm:p-5">
-        <p className="text-sm leading-relaxed text-zinc-300">
+      <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4 sm:mb-6 sm:p-5">
+        <p className="text-base leading-relaxed text-slate-800 sm:text-sm">
           When the weary soul finally left the mortal world and stood before the gates of eternity,
           the Almighty smiled… then sighed softly —
         </p>
-        <p className="mt-3 border-l-2 border-amber-400/60 pl-4 text-sm italic leading-relaxed text-amber-100/90">
+        <p className="mt-3 border-l-4 border-amber-500 pl-4 text-base font-medium italic leading-relaxed text-amber-950 sm:text-sm">
           &lsquo;My child, heaven welcomes all… but not those below 75%.
           <br />
           Track your attendance wisely… destiny keeps a record of everything.&rsquo;
@@ -158,40 +183,42 @@ export default function DashboardPage() {
         <RiskMeter score={data.summary.riskScore} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="space-y-6 xl:col-span-2">
           <section>
             <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-900 sm:text-lg">
+                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-400" />
                 Today&apos;s Classes
               </h2>
-              <p className="text-sm text-cyan-300/80">{data.todayLabel}</p>
+              <p className="text-sm font-medium text-cyan-700 sm:text-base">{data.todayLabel}</p>
             </div>
             {data.todayClasses.length === 0 ? (
-              <p className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-zinc-500">
+              <p className="rounded-2xl border border-slate-200 bg-white p-4 text-base text-slate-500 shadow-sm sm:text-sm">
                 No classes today. Faculty thinks you&apos;re still sleeping.
               </p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {data.todayClasses.map((c, i) => (
                   <motion.div
                     key={c.id}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="rounded-xl border border-white/10 bg-black/30 px-4 py-3 transition hover:border-cyan-500/20"
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm transition hover:border-cyan-300 sm:px-4 sm:py-3"
                   >
                     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                       <div className="min-w-0">
-                        <p className="break-words font-medium text-white">{c.subject.name}</p>
-                        <p className="mt-1 text-xs font-medium text-cyan-400">{c.subject.code}</p>
+                        <p className="break-words text-base font-semibold text-slate-900 sm:text-sm sm:font-medium">
+                          {c.subject.name}
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-cyan-700 sm:text-xs">{c.subject.code}</p>
                       </div>
-                      <span className="w-fit shrink-0 rounded-full bg-violet-500/20 px-2.5 py-0.5 text-xs text-violet-200">
+                      <span className="w-fit shrink-0 rounded-full bg-violet-100 px-3 py-1 text-sm text-violet-800 sm:px-2.5 sm:py-0.5 sm:text-xs">
                         {formatClassTimeRange(c.startTime, c.endTime)}
                       </span>
                     </div>
-                    <p className="mt-2 text-xs text-zinc-500">
+                    <p className="mt-2 text-sm text-slate-500 sm:text-xs">
                       Prof. {c.faculty || "TBA"} · {c.room || "G2"}
                     </p>
                   </motion.div>
@@ -201,13 +228,15 @@ export default function DashboardPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">Subject Intelligence</h2>
+            <h2 className="mb-4 text-xl font-bold text-slate-900 sm:mb-3 sm:text-lg sm:font-semibold">
+              Subject Intelligence
+            </h2>
             {data.subjectStats.length === 0 ? (
-              <p className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-200">
+              <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-base text-amber-900 sm:text-sm">
                 No subjects loaded yet. Admin: upload TERM 4 MBA-MKT TT.xlsx from Upload TT tab.
               </p>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {data.subjectStats.map((s) => (
                   <SubjectCard key={s.subjectName} {...s} />
                 ))}
@@ -216,7 +245,7 @@ export default function DashboardPage() {
           </section>
         </div>
 
-        <div>
+        <div className="xl:sticky xl:top-36 xl:self-start">
           <SocialFeed items={data.feed} />
         </div>
       </div>
@@ -234,14 +263,14 @@ function Badge({
   color: "red" | "violet" | "cyan";
 }) {
   const colors = {
-    red: "border-red-500/20 text-red-300",
-    violet: "border-violet-500/20 text-violet-300",
-    cyan: "border-cyan-500/20 text-cyan-300",
+    red: "border-red-200 text-red-700 bg-red-50",
+    violet: "border-violet-200 text-violet-700 bg-violet-50",
+    cyan: "border-cyan-200 text-cyan-700 bg-cyan-50",
   };
   return (
-    <div className={`rounded-2xl border bg-black/30 px-2 py-2 text-center sm:rounded-xl sm:px-3 sm:py-2 sm:text-left ${colors[color]}`}>
-      <p className="text-[9px] uppercase opacity-70 sm:text-[10px]">{label}</p>
-      <p className="text-lg font-bold text-white sm:text-xl">{value}</p>
+    <div className={`rounded-2xl border px-3 py-3 text-center sm:rounded-xl sm:px-3 sm:py-2 sm:text-left ${colors[color]}`}>
+      <p className="text-xs font-medium uppercase opacity-80 sm:text-[10px] sm:opacity-70">{label}</p>
+      <p className="text-2xl font-bold text-slate-900 sm:text-xl">{value}</p>
     </div>
   );
 }

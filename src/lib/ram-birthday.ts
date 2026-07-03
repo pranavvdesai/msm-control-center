@@ -7,17 +7,11 @@ export const RAM_BIRTHDAY_DAY = 4;
 export const RAM_DISPLAY_NAME = "Ram J Pareek";
 export const RAM_FIRST_NAME = "Ram";
 
-export const RAM_BIRTHDAY_SPLASH_KEY_PREFIX = "msm-ram-birthday-splash-v2";
+export const RAM_BIRTHDAY_SPLASH_KEY_PREFIX = "msm-ram-birthday-dismiss";
 export const RAM_BIRTHDAY_REPLAY_SESSION_KEY = "msm-replay-birthday";
 
 export function isRamBirthdayToday(date = new Date()): boolean {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
-    month: "numeric",
-    day: "numeric",
-  }).formatToParts(date);
-  const month = Number(parts.find((p) => p.type === "month")?.value ?? 0);
-  const day = Number(parts.find((p) => p.type === "day")?.value ?? 0);
+  const [, month, day] = getIstDateString(date).split("-").map(Number);
   return month === RAM_BIRTHDAY_MONTH && day === RAM_BIRTHDAY_DAY;
 }
 
@@ -25,25 +19,25 @@ export function getRamBirthdaySplashStorageKey(date = new Date()): string {
   return `${RAM_BIRTHDAY_SPLASH_KEY_PREFIX}-${getIstDateString(date)}`;
 }
 
-export function wasRamBirthdaySplashSeenToday(): boolean {
+export function wasRamBirthdaySplashSeenToday(date = new Date()): boolean {
   try {
-    return !!localStorage.getItem(getRamBirthdaySplashStorageKey());
+    return !!sessionStorage.getItem(getRamBirthdaySplashStorageKey(date));
   } catch {
     return false;
   }
 }
 
-export function markRamBirthdaySplashSeen(): void {
+export function markRamBirthdaySplashSeen(date = new Date()): void {
   try {
-    localStorage.setItem(getRamBirthdaySplashStorageKey(), "1");
+    sessionStorage.setItem(getRamBirthdaySplashStorageKey(date), "1");
   } catch {
     /* private mode / blocked storage */
   }
 }
 
-export function clearRamBirthdaySplashSeen(): void {
+export function clearRamBirthdaySplashSeen(date = new Date()): void {
   try {
-    localStorage.removeItem(getRamBirthdaySplashStorageKey());
+    sessionStorage.removeItem(getRamBirthdaySplashStorageKey(date));
   } catch {
     /* ignore */
   }
