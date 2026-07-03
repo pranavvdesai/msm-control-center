@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PageVisitTracker } from "@/components/PageVisitTracker";
+import { RamBirthdaySplash } from "@/components/RamBirthdaySplash";
 
 const navItems = [
   { href: "/about", label: "About", icon: Users },
@@ -58,6 +59,7 @@ export function NavShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [rollNumber, setRollNumber] = useState<string | null>(null);
   const [mePerms, setMePerms] = useState<{
     canAdmin: boolean;
     canUpload: boolean;
@@ -74,7 +76,8 @@ export function NavShell({
       .then((d) => {
         const u = d.user;
         if (!u) return;
-        const roll = u.rollNumber?.toUpperCase();
+        const roll = u.rollNumber?.toUpperCase() ?? null;
+        setRollNumber(roll);
         setMePerms({
           canAdmin: !!u.canAdmin || roll === "25M136",
           canUpload: !!u.canUpload || u.role === "ADMIN",
@@ -102,6 +105,7 @@ export function NavShell({
 
   return (
     <div className="relative min-h-screen bg-slate-100 text-slate-900">
+      <RamBirthdaySplash rollNumber={rollNumber} />
       <PageVisitTracker />
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-32 left-0 h-72 w-72 rounded-full bg-cyan-200/50 blur-3xl" />
