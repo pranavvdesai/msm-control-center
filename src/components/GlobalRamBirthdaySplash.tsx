@@ -1,7 +1,7 @@
 "use client";
 
-import { RamBirthdaySplash } from "@/components/RamBirthdaySplash";
+import { BirthdaySplash } from "@/components/BirthdaySplash";
 
-export function GlobalRamBirthdaySplash() {
-  return <RamBirthdaySplash />;
+export function GlobalBirthdaySplash() {
+  return <BirthdaySplash />;
 }

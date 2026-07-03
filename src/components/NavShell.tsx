@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PageVisitTracker } from "@/components/PageVisitTracker";
-import { RAM_ROLL } from "@/lib/permissions";
 
 const navItems = [
   { href: "/about", label: "About", icon: Users },
@@ -59,7 +58,6 @@ export function NavShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [rollNumber, setRollNumber] = useState<string | null>(null);
   const ramLogoTaps = useRef(0);
   const [mePerms, setMePerms] = useState<{
     canAdmin: boolean;
@@ -78,9 +76,8 @@ export function NavShell({
         const u = d.user;
         if (!u) return;
         const roll = u.rollNumber?.toUpperCase() ?? null;
-        setRollNumber(roll);
         setMePerms({
-          canAdmin: !!u.canAdmin || roll === RAM_ROLL,
+          canAdmin: !!u.canAdmin || roll === "25M136",
           canUpload: !!u.canUpload || u.role === "ADMIN",
           canCrBoard: !!u.canCrBoard || roll === "25M149",
         });
@@ -89,7 +86,6 @@ export function NavShell({
   }, []);
 
   function handleLogoTap(e: React.MouseEvent) {
-    if (rollNumber !== RAM_ROLL) return;
     ramLogoTaps.current += 1;
     if (ramLogoTaps.current >= 3) {
       e.preventDefault();

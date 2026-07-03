@@ -21,10 +21,18 @@ model User {
   welcomeEmailSent  Boolean            @default(false)
   remindersEnabled  Boolean            @default(false)
   avatar            String?
+  cohortSlug        String             @default("msm")
   createdAt         DateTime           @default(now())
   leaves            Leave[]
   activities        ActivityEvent[]
   pushSubscriptions PushSubscription[]
+  sudokuAttempts    SudokuAttempt[]
+  sudokuStats       SudokuUserStats?
+  quizAttempts      QuizAttempt[]
+  quizStats         QuizUserStats?
+  pageVisits        PageVisit[]
+  birthdayWishesSent     BirthdayWish[] @relation("BirthdayWishesSent")
+  birthdayWishesReceived BirthdayWish[] @relation("BirthdayWishesReceived")
 }
 
 model Subject {
@@ -111,4 +119,141 @@ model PushSubscription {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model DailySudoku {
+  id          String          @id @default(cuid())
+  puzzleDate  String          @unique
+  initialGrid String
+  solution    String
+  difficulty  String          @default("master")
+  clueCount   Int
+  source      String          @default("mtsudoku")
+  seed        Int?
+  createdAt   DateTime        @default(now())
+  attempts    SudokuAttempt[]
+}
+
+model SudokuAttempt {
+  id             String      @id @default(cuid())
+  userId         String
+  puzzleId       String
+  puzzleDate     String
+  startedAt      DateTime    @default(now())
+  completedAt    DateTime?
+  durationMs     Int?
+  elapsedMs      Int         @default(0)
+  timerStartedAt DateTime?
+  mistakes       Int         @default(0)
+  status         String      @default("in_progress")
+  currentGrid    String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  puzzle         DailySudoku @relation(fields: [puzzleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, puzzleDate])
+  @@index([puzzleDate, status, durationMs])
+  @@index([userId])
+}
+
+model SudokuUserStats {
+  userId            String   @id
+  totalCompleted    Int      @default(0)
+  allTimeScore      Int      @default(0)
+  bestDurationMs    Int?
+  totalDurationMs   Int      @default(0)
+  currentStreak     Int      @default(0)
+  longestStreak     Int      @default(0)
+  lastCompletedDate String?
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailyQuiz {
+  id        String        @id @default(cuid())
+  quizDate  String        @unique
+  questions String
+  createdAt DateTime      @default(now())
+  attempts  QuizAttempt[]
+}
+
+model QuizAttempt {
+  id           String    @id @default(cuid())
+  userId       String
+  quizId       String
+  quizDate     String
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+  durationMs   Int?
+  correctCount Int       @default(0)
+  score        Int       @default(0)
+  status       String    @default("in_progress")
+  answers      String    @default("[]")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz         DailyQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, quizDate])
+  @@index([quizDate, status, score])
+  @@index([userId])
+}
+
+model QuizUserStats {
+  userId            String   @id
+  totalCompleted    Int      @default(0)
+  allTimeScore      Int      @default(0)
+  bestScore         Int      @default(0)
+  totalCorrect      Int      @default(0)
+  totalQuestions    Int      @default(0)
+  currentStreak     Int      @default(0)
+  longestStreak     Int      @default(0)
+  lastCompletedDate String?
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NewsDailyCache {
+  id        String   @id @default(cuid())
+  newsDate  String
+  category  String
+  items     String
+  fetchedAt DateTime @default(now())
+
+  @@unique([newsDate, category])
+  @@index([newsDate])
+}
+
+model PageVisit {
+  id        String   @id @default(cuid())
+  userId    String
+  tab       String
+  path      String
+  visitDate String
+  visitedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([visitDate])
+  @@index([tab, visitDate])
+  @@index([userId, visitDate])
+}
+
+model EmailSendLog {
+  id       String   @id @default(cuid())
+  kind     String
+  istDate  String
+  metadata String?
+  sentAt   DateTime @default(now())
+
+  @@unique([kind, istDate])
+}
+
+model BirthdayWish {
+  id         String   @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  istDate    String
+  createdAt  DateTime @default(now())
+  fromUser   User     @relation("BirthdayWishesSent", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User     @relation("BirthdayWishesReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, toUserId, istDate])
+  @@index([toUserId, istDate])
 }

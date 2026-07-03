@@ -13,8 +13,10 @@ function pickIndex(key: string, poolLength: number): number {
   return hash % poolLength;
 }
 
+import { getIstDateString } from "@/lib/play/ist-date";
+
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  return getIstDateString();
 }
 
 /** Short birthday quotes — unique per person per day */
@@ -242,4 +244,19 @@ export function buildClassmateBirthdayEmail(
       : `${subjectPrefix}🎂 ${birthdayPeople.length} MSM birthdays today — send your wishes!`;
 
   return { subject, html };
+}
+
+/** Plain-text poem for in-app birthday splash (strips HTML from email poems). */
+export function getBirthdayPersonPoemPlain(
+  person: BirthdayPerson,
+  dateKey = getIstDateString()
+): string {
+  const fn = firstName(person.name);
+  const poems = birthdayPoems(fn, person.rollNumber);
+  const html = poems[pickIndex(`${person.rollNumber}:${dateKey}:poem`, poems.length)];
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/?strong>/gi, "")
+    .replace(/<[^>]+>/g, "")
+    .trim();
 }

@@ -11,14 +11,6 @@ import {
 } from "@/lib/utils";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { isRamAdmin } from "@/lib/permissions";
-import {
-  isRamBirthdayToday,
-  isRamRoll,
-  RAM_BIRTHDAY_POEM,
-  RAM_DISPLAY_NAME,
-  RAM_FIRST_NAME,
-} from "@/lib/ram-birthday";
-import { getIstDateString } from "@/lib/play/ist-date";
 import { isExcludedSubject } from "@/lib/subjects";
 import { getLiveFeed } from "@/lib/feed";
 
@@ -88,21 +80,8 @@ export async function GET() {
     select: { rollNumber: true, remindersEnabled: true },
   });
 
-  const roll = dbUser?.rollNumber?.toUpperCase() ?? null;
-  const birthdayActive = isRamBirthdayToday() && !!roll;
-
   return NextResponse.json({
     user: { ...session, canAdmin: isRamAdmin(dbUser?.rollNumber) },
-    ramBirthday: birthdayActive
-      ? {
-          active: true,
-          istDate: getIstDateString(),
-          isRam: isRamRoll(roll),
-          firstName: RAM_FIRST_NAME,
-          displayName: RAM_DISPLAY_NAME,
-          poem: isRamRoll(roll) ? RAM_BIRTHDAY_POEM : null,
-        }
-      : { active: false },
     settings: settings
       ? settings
       : {

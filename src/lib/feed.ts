@@ -1,7 +1,7 @@
 import { prisma } from "./db";
 
 /** Event types shown on the live cohort feed */
-export const LIVE_FEED_TYPES = ["login", "leave", "alert"] as const;
+export const LIVE_FEED_TYPES = ["login", "leave", "alert", "birthday_wish"] as const;
 
 export async function getLiveFeed(limit = 10) {
   return prisma.activityEvent.findMany({

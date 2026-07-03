@@ -7,27 +7,35 @@ import { SubjectCard } from "@/components/SubjectCard";
 import { SocialFeed } from "@/components/SocialFeed";
 import { RiskMeter } from "@/components/RiskMeter";
 import { CrContact } from "@/components/CrContact";
+import { BirthdayDayBanner } from "@/components/BirthdayDayBanner";
+import { BirthdayWishToasts } from "@/components/BirthdayWishToasts";
 import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { formatClassTimeRange } from "@/lib/utils";
-import { RefreshCw } from "lucide-react";
-import { RamBirthdayBanner } from "@/components/RamBirthdayBanner";
 import {
-  clearRamBirthdaySplashSeen,
-  enableRamBirthdayReplay,
-} from "@/lib/ram-birthday";
+  clearBirthdayReplayFlag,
+  clearBirthdaySplashSeen,
+  enableBirthdayReplay,
+} from "@/lib/birthday-celebration";
+import { RefreshCw } from "lucide-react";
 
-type RamBirthdayData = {
+type BirthdayToday = {
   active: boolean;
-  istDate?: string;
-  isRam?: boolean;
-  firstName?: string;
-  displayName?: string;
-  poem?: string | null;
+  birthdayPeople: Array<{ id: string; name: string; firstName: string; rollNumber: string }>;
+  viewer: {
+    isBirthdayPerson: boolean;
+    pendingWishUserIds: string[];
+    wishCount: number;
+  };
+  incomingWishes: Array<{
+    id: string;
+    fromName: string;
+    fromFirstName: string;
+    createdAt: string;
+  }>;
 };
 
 type DashboardData = {
   user: { name: string; role: string; canAdmin?: boolean };
-  ramBirthday?: RamBirthdayData;
   settings: { crName: string; crPhone?: string; cohortName: string; cohortFull: string; termInfo?: string } | null;
   subjectStats: Array<{
     subjectName: string;
@@ -56,21 +64,28 @@ type DashboardData = {
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [birthday, setBirthday] = useState<BirthdayToday | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [sendingWish, setSendingWish] = useState(false);
 
-  const load = useCallback(async () => {
-    const dash = await fetch("/api/dashboard", { credentials: "include", cache: "no-store" }).then(
-      (r) => r.json()
-    );
-    setData(dash);
-    setRefreshing(false);
-
-    if (dash.ramBirthday?.active) {
-      window.dispatchEvent(
-        new CustomEvent("msm-ram-birthday-active", { detail: dash.ramBirthday })
-      );
+  const loadBirthday = useCallback(async () => {
+    const res = await fetch("/api/birthday/today", { credentials: "include", cache: "no-store" });
+    if (!res.ok) return;
+    const b = (await res.json()) as BirthdayToday;
+    setBirthday(b);
+    if (b.active) {
+      window.dispatchEvent(new CustomEvent("msm-birthday-active", { detail: b }));
     }
   }, []);
+
+  const load = useCallback(async () => {
+    const [dash] = await Promise.all([
+      fetch("/api/dashboard", { credentials: "include", cache: "no-store" }).then((r) => r.json()),
+      loadBirthday(),
+    ]);
+    setData(dash);
+    setRefreshing(false);
+  }, [loadBirthday]);
 
   useEffect(() => {
     load();
@@ -84,15 +99,37 @@ export default function DashboardPage() {
   }
 
   function openBirthdaySplash() {
-    clearRamBirthdaySplashSeen();
-    enableRamBirthdayReplay();
-    if (data?.ramBirthday?.active) {
-      window.dispatchEvent(
-        new CustomEvent("msm-ram-birthday-active", { detail: data.ramBirthday })
-      );
+    clearBirthdaySplashSeen();
+    enableBirthdayReplay();
+    if (birthday?.active) {
+      window.dispatchEvent(new CustomEvent("msm-birthday-active", { detail: birthday }));
     } else {
       window.dispatchEvent(new Event("msm-replay-birthday"));
     }
+  }
+
+  async function sendWishes() {
+    if (!birthday?.active) return;
+    setSendingWish(true);
+    try {
+      const res = await fetch("/api/birthday/wish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ toUserIds: birthday.viewer.pendingWishUserIds }),
+      });
+      if (res.ok) {
+        clearBirthdaySplashSeen();
+        markDismissAndReload();
+      }
+      await loadBirthday();
+    } finally {
+      setSendingWish(false);
+    }
+  }
+
+  function markDismissAndReload() {
+    clearBirthdayReplayFlag();
   }
 
   if (!data) {
@@ -116,10 +153,18 @@ export default function DashboardPage() {
       isAdmin={data.user.role === "ADMIN"}
       canAdmin={data.user.canAdmin}
     >
-      {data.ramBirthday?.active && (
-        <RamBirthdayBanner
-          isRam={!!data.ramBirthday.isRam}
+      {birthday?.active && birthday.viewer.isBirthdayPerson && (
+        <BirthdayWishToasts incomingWishes={birthday.incomingWishes} />
+      )}
+
+      {birthday?.active && (
+        <BirthdayDayBanner
+          isBirthdayPerson={birthday.viewer.isBirthdayPerson}
+          birthdayPeople={birthday.birthdayPeople}
+          pendingCount={birthday.viewer.pendingWishUserIds.length}
           onOpenSplash={openBirthdaySplash}
+          onSendWishes={sendWishes}
+          sending={sendingWish}
         />
       )}
 
@@ -139,32 +184,32 @@ export default function DashboardPage() {
         </div>
 
         <div className="min-w-0 pr-8 sm:pr-0">
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-cyan-700 sm:text-xs sm:tracking-[0.3em]">
-              {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
-            </p>
-            <h1 className="mt-2 text-2xl font-black leading-tight text-slate-900 sm:text-2xl md:text-4xl">
-              MSM Control Center
-            </h1>
-            <p className="mt-2 text-base text-slate-600 sm:mt-1 sm:text-sm">
-              Class Representative:{" "}
-              <span className="font-bold text-slate-900">
-                {data.settings?.crName || CR_FULL_NAME}
-              </span>
-            </p>
-            <CrContact
-              crName={data.settings?.crName || CR_FULL_NAME}
-              crPhone={data.settings?.crPhone || CR_PHONE}
-            />
-            <p className="mt-3 text-base leading-relaxed text-slate-600 sm:text-sm">
-              Welcome back, <span className="font-semibold text-slate-900">{data.user.name}</span>.
-              Your attendance radar is live.
-            </p>
-            <div className="mt-4 grid grid-cols-1 gap-3 min-[420px]:grid-cols-3 sm:flex sm:flex-wrap sm:gap-3">
-              <Badge label="Regular absences" value={data.summary.totalRegular} color="red" />
-              <Badge label="Condoned leaves" value={data.summary.totalCondoned} color="violet" />
-              <Badge label="Subjects tracked" value={data.subjectStats.length} color="cyan" />
-            </div>
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-cyan-700 sm:text-xs sm:tracking-[0.3em]">
+            {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
+          </p>
+          <h1 className="mt-2 text-2xl font-black leading-tight text-slate-900 sm:text-2xl md:text-4xl">
+            MSM Control Center
+          </h1>
+          <p className="mt-2 text-base text-slate-600 sm:mt-1 sm:text-sm">
+            Class Representative:{" "}
+            <span className="font-bold text-slate-900">
+              {data.settings?.crName || CR_FULL_NAME}
+            </span>
+          </p>
+          <CrContact
+            crName={data.settings?.crName || CR_FULL_NAME}
+            crPhone={data.settings?.crPhone || CR_PHONE}
+          />
+          <p className="mt-3 text-base leading-relaxed text-slate-600 sm:text-sm">
+            Welcome back, <span className="font-semibold text-slate-900">{data.user.name}</span>.
+            Your attendance radar is live.
+          </p>
+          <div className="mt-4 grid grid-cols-1 gap-3 min-[420px]:grid-cols-3 sm:flex sm:flex-wrap sm:gap-3">
+            <Badge label="Regular absences" value={data.summary.totalRegular} color="red" />
+            <Badge label="Condoned leaves" value={data.summary.totalCondoned} color="violet" />
+            <Badge label="Subjects tracked" value={data.subjectStats.length} color="cyan" />
           </div>
+        </div>
       </motion.section>
 
       <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4 sm:mb-6 sm:p-5">
