@@ -45,7 +45,7 @@ export function BirthdaySplash() {
   const [feedback, setFeedback] = useState("");
 
   const shouldBlockPath = useMemo(
-    () => BLOCKED_PATHS.some((p) => pathname === path || pathname.startsWith(`${path}/`)),
+    () => BLOCKED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`)),
     [pathname]
   );
 
