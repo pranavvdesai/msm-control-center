@@ -13,8 +13,8 @@ import { CR_FULL_NAME, CR_PHONE } from "@/lib/cohort";
 import { formatClassTimeRange } from "@/lib/utils";
 import {
   clearBirthdayReplayFlag,
-  clearBirthdaySplashSeen,
   enableBirthdayReplay,
+  markBirthdaySplashSeen,
 } from "@/lib/birthday-celebration";
 import { RefreshCw } from "lucide-react";
 
@@ -73,9 +73,6 @@ export default function DashboardPage() {
     if (!res.ok) return;
     const b = (await res.json()) as BirthdayToday;
     setBirthday(b);
-    if (b.active) {
-      window.dispatchEvent(new CustomEvent("msm-birthday-active", { detail: b }));
-    }
   }, []);
 
   const load = useCallback(async () => {
@@ -99,10 +96,10 @@ export default function DashboardPage() {
   }
 
   function openBirthdaySplash() {
-    clearBirthdaySplashSeen();
     enableBirthdayReplay();
     if (birthday?.active) {
       window.dispatchEvent(new CustomEvent("msm-birthday-active", { detail: birthday }));
+      window.dispatchEvent(new Event("msm-replay-birthday"));
     } else {
       window.dispatchEvent(new Event("msm-replay-birthday"));
     }
@@ -119,17 +116,13 @@ export default function DashboardPage() {
         body: JSON.stringify({ toUserIds: birthday.viewer.pendingWishUserIds }),
       });
       if (res.ok) {
-        clearBirthdaySplashSeen();
-        markDismissAndReload();
+        markBirthdaySplashSeen();
+        clearBirthdayReplayFlag();
       }
       await loadBirthday();
     } finally {
       setSendingWish(false);
     }
-  }
-
-  function markDismissAndReload() {
-    clearBirthdayReplayFlag();
   }
 
   if (!data) {

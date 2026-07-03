@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import {
   buildWishFeedMessage,
+  buildWishSuccessMessage,
   ensureBirthdayWishSchema,
   getTodaysBirthdayPeople,
 } from "@/lib/birthday-celebration";
@@ -95,9 +96,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     sent: created.length,
-    message:
-      created.length === 1
-        ? `Wish sent! ${birthdayPeople.find((p) => p.id === created[0])?.firstName} will see it on Home.`
-        : `Wishes sent to ${created.length} birthday ${created.length === 1 ? "friend" : "friends"}!`,
+    message: buildWishSuccessMessage(created.length, birthdayPeople, created),
   });
 }

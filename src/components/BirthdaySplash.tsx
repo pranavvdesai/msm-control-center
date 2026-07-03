@@ -10,6 +10,8 @@ import {
   clearBirthdayReplayFlag,
   clearBirthdaySplashSeen,
   enableBirthdayReplay,
+  getSendWishButtonLabel,
+  getWisherSplashCopy,
   markBirthdaySplashSeen,
   shouldReplayBirthdaySplash,
   wasBirthdaySplashSeenToday,
@@ -107,7 +109,6 @@ export function BirthdaySplash() {
       const detail = (e as CustomEvent<BirthdayPayload>).detail;
       if (detail?.active) {
         setPayload(detail);
-        tryOpen(detail, true);
       }
     }
     window.addEventListener("msm-replay-birthday", onReplay);
@@ -117,6 +118,12 @@ export function BirthdaySplash() {
       window.removeEventListener("msm-birthday-active", onActive);
     };
   }, [payload, tryOpen, loadBirthday]);
+
+  useEffect(() => {
+    if (open && payload?.active && !shouldReplayBirthdaySplash()) {
+      markBirthdaySplashSeen();
+    }
+  }, [open, payload?.active]);
 
   function dismiss() {
     markBirthdaySplashSeen();
@@ -148,7 +155,10 @@ export function BirthdaySplash() {
   if (!mounted || !open || !payload?.active) return null;
 
   const single = birthdayPeople.length === 1 && !isBirthdayPerson;
-  const names = birthdayPeople.map((p) => p.firstName).join(" & ");
+  const wisherCopy =
+    !isBirthdayPerson && birthdayPeople.length > 0
+      ? getWisherSplashCopy(birthdayPeople, payload.istDate)
+      : null;
 
   return createPortal(
     <AnimatePresence>
@@ -226,10 +236,8 @@ export function BirthdaySplash() {
                 )}
               </h1>
 
-              <p className="mt-3 text-center text-sm leading-relaxed text-zinc-300">
-                {single
-                  ? `Celebrate ${birthdayPeople[0]?.name} — roll ${birthdayPeople[0]?.rollNumber}.`
-                  : `Wish ${names} a happy birthday before class steals the moment.`}
+              <p className="mt-3 text-center text-sm leading-relaxed text-zinc-300 italic">
+                {wisherCopy}
               </p>
 
               {!single && (
@@ -252,21 +260,15 @@ export function BirthdaySplash() {
                   onClick={sendWishes}
                   disabled={sending || pendingIds.length === 0}
                 >
-                  {sending
-                    ? "Sending…"
-                    : pendingIds.length === 0
-                      ? "✓ Wishes already sent"
-                      : single
-                        ? "🎉 Send wishes & celebrate"
-                        : `🎉 Send wishes to all (${pendingIds.length})`}
+                  {getSendWishButtonLabel(birthdayPeople, pendingIds.length, sending)}
                 </GlowButton>
                 <GlowButton type="button" variant="secondary" className="w-full py-3" onClick={dismiss}>
-                  Maybe later
+                  I&apos;ll wish them in person
                 </GlowButton>
               </div>
-              {feedback && <p className="mt-3 text-center text-xs text-amber-200">{feedback}</p>}
+              {feedback && <p className="mt-3 text-center text-xs italic text-amber-200">{feedback}</p>}
               <p className="mt-3 text-center text-[11px] text-zinc-500">
-                Sending wishes also closes this screen. They&apos;ll see it on Home.
+                Your wish lands on their Home — one gentle celebration, once today.
               </p>
             </>
           )}

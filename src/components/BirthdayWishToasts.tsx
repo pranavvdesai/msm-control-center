@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cake } from "lucide-react";
+import { buildWishToastMessage } from "@/lib/birthday-celebration";
 
 type IncomingWish = {
   id: string;
@@ -50,8 +51,8 @@ export function BirthdayWishToasts({
             className="flex items-start gap-2 rounded-2xl border border-amber-300/40 bg-gradient-to-r from-amber-500/95 to-fuchsia-500/90 px-4 py-3 text-white shadow-lg backdrop-blur-sm"
           >
             <Cake className="mt-0.5 h-5 w-5 shrink-0" />
-            <p className="text-sm font-medium leading-snug">
-              <strong>{wish.fromFirstName}</strong> wished you happy birthday 🎂
+            <p className="text-sm font-medium leading-snug italic">
+              {buildWishToastMessage(wish.fromFirstName)}
             </p>
           </motion.div>
         ))}

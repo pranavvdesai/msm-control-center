@@ -2,6 +2,7 @@
 
 import { Cake, PartyPopper } from "lucide-react";
 import { GlowButton } from "@/components/GlowButton";
+import { getSendWishButtonLabel } from "@/lib/birthday-celebration";
 
 type BirthdayPerson = {
   id: string;
@@ -33,8 +34,8 @@ export function BirthdayDayBanner({
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-amber-700">
             Happy Birthday!
           </p>
-          <p className="mt-1 text-sm leading-relaxed text-slate-800">
-            The cohort is celebrating you today. Open your surprise or watch wishes roll in above.
+          <p className="mt-1 text-sm leading-relaxed text-slate-800 italic">
+            The cohort is singing your name today — open your surprise, or watch wishes drift in above.
           </p>
           <GlowButton type="button" className="mt-3 px-4 py-2 text-sm" onClick={onOpenSplash}>
             🎂 Open birthday surprise
@@ -56,11 +57,11 @@ export function BirthdayDayBanner({
         <p className="text-xs font-bold uppercase tracking-[0.25em] text-fuchsia-700">
           Birthday alert
         </p>
-        <p className="mt-1 text-sm leading-relaxed text-slate-800">
+        <p className="mt-1 text-sm leading-relaxed text-slate-800 italic">
           <strong>{label}</strong>
           {single
-            ? ` — wish ${birthdayPeople[0]?.name} before the day ends.`
-            : " — send your wishes to the birthday crew."}
+            ? " — lend them a verse of warmth before the day slips away."
+            : " — scatter a little birthday poetry their way."}
         </p>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           <GlowButton
@@ -69,7 +70,7 @@ export function BirthdayDayBanner({
             onClick={onSendWishes}
             disabled={sending || pendingCount === 0}
           >
-            {pendingCount === 0 ? "✓ Wishes sent" : "🎉 Send wishes & celebrate"}
+            {getSendWishButtonLabel(birthdayPeople, pendingCount, sending)}
           </GlowButton>
           <GlowButton type="button" variant="secondary" className="px-4 py-2 text-sm" onClick={onOpenSplash}>
             See celebration
