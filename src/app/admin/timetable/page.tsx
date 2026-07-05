@@ -12,10 +12,12 @@ export default function AdminTimetablePage() {
   const [canAdmin, setCanAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [replaceAll, setReplaceAll] = useState(false);
   const [uploadResult, setUploadResult] = useState<{
     created: number;
     subjects: number;
     termInfo: string;
+    replacedDates?: number;
   } | null>(null);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function AdminTimetablePage() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("replace", "true");
+    if (replaceAll) formData.append("replaceAll", "true");
 
     try {
       const res = await fetch("/api/timetable/upload", {
@@ -52,7 +54,9 @@ export default function AdminTimetablePage() {
 
       setUploadResult(data);
       setMessage(
-        `Success! ${data.created} lectures and ${data.subjects} subjects loaded.`
+        replaceAll
+          ? `Success! Full timetable replaced — ${data.created} lectures loaded.`
+          : `Success! ${data.created} lectures added for ${data.replacedDates ?? "the uploaded"} day(s). Older months were kept.`
       );
       setFile(null);
     } catch (e) {
@@ -72,29 +76,29 @@ export default function AdminTimetablePage() {
   return (
     <NavShell userName={userName} canUpload canAdmin={canAdmin} isAdmin>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Timetable Upload</h1>
-        <p className="text-zinc-400">
-          Upload your Term 4 Excel timetable (e.g. TERM 4 MBA-MKT TT.xlsx)
+        <h1 className="text-2xl font-bold text-slate-900">Timetable Upload</h1>
+        <p className="text-slate-600">
+          Upload monthly Excel timetables (e.g. TERM 4 MBA-MKT TT.xlsx). New uploads merge in — older months stay unless you choose full replace.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-6">
+      <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-6">
         <div className="mb-4 flex items-center gap-3">
-          <FileSpreadsheet className="h-8 w-8 text-cyan-400" />
+          <FileSpreadsheet className="h-8 w-8 text-cyan-700" />
           <div>
-            <h2 className="font-semibold text-white">Upload Excel Timetable</h2>
-            <p className="text-sm text-zinc-400">
+            <h2 className="font-semibold text-slate-900">Upload Excel Timetable</h2>
+            <p className="text-sm text-slate-600">
               Supports TAPMI format: TERM 4 MBA-MKT TT.xlsx
             </p>
           </div>
         </div>
 
-        <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-black/30 px-6 py-10 transition hover:border-cyan-500/40 hover:bg-cyan-500/5">
-          <Upload className="mb-3 h-10 w-10 text-zinc-500" />
-          <p className="text-sm text-zinc-300">
+        <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-10 transition hover:border-cyan-400 hover:bg-cyan-50">
+          <Upload className="mb-3 h-10 w-10 text-slate-500" />
+          <p className="text-sm text-slate-700">
             {file ? file.name : "Click to select .xlsx file"}
           </p>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-slate-500">
             Date, time slots, and MSM subject codes are auto-detected
           </p>
           <input
@@ -109,13 +113,27 @@ export default function AdminTimetablePage() {
           />
         </label>
 
-        <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-400">
-          <p className="mb-2 font-medium text-zinc-300">Auto-detected from your file:</p>
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+          <p className="mb-2 font-medium text-slate-700">How uploads work:</p>
           <ul className="list-inside list-disc space-y-1 text-xs">
-            <li>Subjects with credits (MSM 6400, 6430, 6503, etc.)</li>
-            <li>Daily lecture slots (8:45 AM – 8:30 PM)</li>
-            <li>Faculty names and G2 classroom venue</li>
+            <li>Default: only dates in the new file are updated — previous months remain</li>
+            <li>Re-uploading July updates July only; June stays visible in Timetable</li>
+            <li>Subjects, slots, faculty, and G2 room are auto-detected from Excel</li>
           </ul>
+          <label className="mt-4 flex cursor-pointer items-start gap-2 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={replaceAll}
+              onChange={(e) => setReplaceAll(e.target.checked)}
+              className="mt-1"
+            />
+            <span>
+              Replace entire timetable
+              <span className="block text-xs font-normal text-slate-500">
+                Deletes all existing lectures before importing — use only for a fresh full-term file
+              </span>
+            </span>
+          </label>
         </div>
 
         <GlowButton
@@ -130,8 +148,8 @@ export default function AdminTimetablePage() {
           <p
             className={`mt-3 text-sm ${
               message.startsWith("Success") || message.includes("uploaded")
-                ? "text-emerald-400"
-                : "text-cyan-300"
+                ? "text-emerald-700"
+                : "text-cyan-700"
             }`}
           >
             {message}
@@ -139,15 +157,15 @@ export default function AdminTimetablePage() {
         )}
 
         {uploadResult && (
-          <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-            <div className="flex items-center gap-2 text-emerald-300">
+          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex items-center gap-2 text-emerald-700">
               <CheckCircle className="h-5 w-5" />
               <span className="font-semibold">Upload complete</span>
             </div>
-            <p className="mt-2 text-sm text-emerald-200/80">
+            <p className="mt-2 text-sm text-emerald-800">
               {uploadResult.termInfo}
             </p>
-            <p className="mt-1 text-sm text-emerald-200/80">
+            <p className="mt-1 text-sm text-emerald-800">
               {uploadResult.created} lectures · {uploadResult.subjects} subjects
             </p>
           </div>

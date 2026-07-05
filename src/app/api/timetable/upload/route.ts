@@ -3,7 +3,24 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { sessionCanUpload } from "@/lib/permissions";
 import { parseTimetableExcel } from "@/lib/parse-timetable-excel";
-import { normalizeClassTimePair } from "@/lib/utils";
+import { normalizeClassTimePair, startOfDay, endOfDay } from "@/lib/utils";
+
+function uniqueUploadDates(entries: { date: string }[]) {
+  return [...new Set(entries.map((entry) => entry.date))];
+}
+
+async function clearEntriesForDates(dateKeys: string[]) {
+  for (const dateKey of dateKeys) {
+    await prisma.timetableEntry.deleteMany({
+      where: {
+        date: {
+          gte: startOfDay(dateKey),
+          lte: endOfDay(dateKey),
+        },
+      },
+    });
+  }
+}
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -14,7 +31,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
-    const replace = formData.get("replace") !== "false";
+    const replaceAll = formData.get("replaceAll") === "true";
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -37,8 +54,12 @@ export async function POST(request: Request) {
       );
     }
 
-    if (replace) {
+    const uploadDates = uniqueUploadDates(parsed.entries);
+
+    if (replaceAll) {
       await prisma.timetableEntry.deleteMany();
+    } else {
+      await clearEntriesForDates(uploadDates);
     }
 
     let subjectsCreated = 0;
@@ -84,7 +105,9 @@ export async function POST(request: Request) {
     await prisma.activityEvent.create({
       data: {
         userId: session.id,
-        message: `Term timetable uploaded! ${created} lectures loaded from ${file.name}. Faculty calendars updated (probably).`,
+        message: replaceAll
+          ? `Full timetable replaced from ${file.name} — ${created} lectures loaded.`
+          : `Timetable updated for ${uploadDates.length} day(s) from ${file.name}. ${created} lectures loaded — older months kept.`,
         type: "admin",
       },
     });
@@ -94,6 +117,8 @@ export async function POST(request: Request) {
       subjects: subjectsCreated,
       termInfo: parsed.termInfo,
       preview: parsed.entries.slice(0, 5),
+      replacedDates: uploadDates.length,
+      replaceAll,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Upload failed";
