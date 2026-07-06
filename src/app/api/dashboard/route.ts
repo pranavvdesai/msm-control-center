@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { buildSubjectStats, getSubjectAlert } from "@/lib/alerts";
+import { countLeavesByType } from "@/lib/leaves";
 import { countUnmarkedEndedClasses } from "@/lib/class-reminder";
 import {
   endOfDay,
@@ -29,13 +30,13 @@ export async function GET() {
 
   const subjectStats = trackableSubjects.map((subject) => {
     const subjectLeaves = leaves.filter((l) => l.subjectId === subject.id);
-    const regularAbsences = subjectLeaves.filter((l) => l.type === "REGULAR").length;
-    const condonedLeaves = subjectLeaves.filter((l) => l.type === "CONDONED").length;
+    const { regularAbsences, condonedLeaves, lateMarks } = countLeavesByType(subjectLeaves);
     const stats = buildSubjectStats(
       subject.name,
       subject.credits,
       regularAbsences,
-      condonedLeaves
+      condonedLeaves,
+      lateMarks
     );
     return { ...stats, alert: getSubjectAlert(stats) };
   });

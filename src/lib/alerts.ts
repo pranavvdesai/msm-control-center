@@ -1,10 +1,12 @@
 import { maxLeavesForCredits } from "./utils";
+import { effectiveAbsencesFromCounts } from "./leaves";
 
 type SubjectStats = {
   subjectName: string;
   credits: number;
   regularAbsences: number;
   condonedLeaves: number;
+  lateMarks: number;
   maxLeaves: number;
   effectiveLeaves: number;
   remainingLeaves: number;
@@ -41,10 +43,11 @@ export function buildSubjectStats(
   subjectName: string,
   credits: number,
   regularAbsences: number,
-  condonedLeaves: number
+  condonedLeaves: number,
+  lateMarks = 0
 ): SubjectStats {
   const maxLeaves = maxLeavesForCredits(credits);
-  const effectiveLeaves = regularAbsences;
+  const effectiveLeaves = effectiveAbsencesFromCounts(regularAbsences, lateMarks);
   const remainingLeaves = Math.max(0, maxLeaves - effectiveLeaves);
 
   return {
@@ -52,6 +55,7 @@ export function buildSubjectStats(
     credits,
     regularAbsences,
     condonedLeaves,
+    lateMarks,
     maxLeaves,
     effectiveLeaves,
     remainingLeaves,
@@ -106,10 +110,13 @@ export function buildLoginFeedMessage(name: string) {
 export function buildLeaveFeedMessage(
   studentName: string,
   subjectName: string,
-  type: "REGULAR" | "CONDONED"
+  type: "REGULAR" | "CONDONED" | "LATE"
 ) {
   if (type === "CONDONED") {
     return `${studentName} marked a condoned leave in ${subjectName}. Looks like life happened.`;
+  }
+  if (type === "LATE") {
+    return `${studentName} marked late in ${subjectName}. Faculty noted the entrance drama.`;
   }
   return `${studentName} took a regular absence in ${subjectName}. The plot thickens.`;
 }

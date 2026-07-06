@@ -44,6 +44,7 @@ type DashboardData = {
     maxLeaves: number;
     regularAbsences: number;
     condonedLeaves: number;
+    lateMarks: number;
     effectiveLeaves: number;
     remainingLeaves: number;
     alert: { level: "safe" | "caution" | "warning" | "critical"; message: string };

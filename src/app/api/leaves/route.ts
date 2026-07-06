@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { buildLeaveFeedMessage } from "@/lib/alerts";
+import { isLeaveType } from "@/lib/leaves";
 import { postAttendanceThresholdFeed } from "@/lib/feed";
 import { sendOneLeaveLeftAlertIfNeeded } from "@/lib/attendance-alert-email";
 import { endOfDay, normalizeTimetableEntries, startOfDay } from "@/lib/utils";
@@ -23,14 +24,19 @@ export async function GET(request: Request) {
 
   if (dateParam) {
     const date = new Date(dateParam);
+    const dayStart = startOfDay(date);
+    const dayEnd = endOfDay(date);
     const raw = await prisma.timetableEntry.findMany({
-      where: { date: { gte: startOfDay(date), lte: endOfDay(date) } },
+      where: { date: { gte: dayStart, lte: dayEnd } },
       include: { subject: true },
     });
     const entries = normalizeTimetableEntries(raw).filter(
       (e) => !isExcludedSubject(e.subject.name)
     );
-    return NextResponse.json({ entries, leaves });
+    const dayLeaves = leaves.filter(
+      (l) => l.date >= dayStart && l.date <= dayEnd
+    );
+    return NextResponse.json({ entries, leaves: dayLeaves });
   }
 
   return NextResponse.json({ leaves });
@@ -46,6 +52,10 @@ export async function POST(request: Request) {
 
     if (!timetableEntryId || !type) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
+
+    if (!isLeaveType(type)) {
+      return NextResponse.json({ error: "Invalid leave type" }, { status: 400 });
     }
 
     const entry = await prisma.timetableEntry.findUnique({
