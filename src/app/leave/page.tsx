@@ -9,7 +9,6 @@ import { formatDate, formatClassTimeRange, toIstDateKey } from "@/lib/utils";
 import { CalendarDays, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  LATES_PER_EFFECTIVE_ABSENCE,
   type LeaveType,
   leaveTypeBadgeClass,
   leaveTypeLabel,
@@ -108,7 +107,7 @@ export default function LeavePage() {
       leaveType === "REGULAR"
         ? "Regular absence recorded. Faculty radar updated."
         : leaveType === "LATE"
-          ? `Late marked. ${LATES_PER_EFFECTIVE_ABSENCE} lates count as 1 absence in your stats.`
+          ? "Late marked for your records."
           : "Condoned leave saved for your reference."
     );
     if (selectedDate) loadDate(selectedDate);
@@ -290,9 +289,7 @@ export default function LeavePage() {
                   )}
                 >
                   <span className="font-semibold">Late</span>
-                  <p className="mt-1 text-[10px] text-slate-500">
-                    {LATES_PER_EFFECTIVE_ABSENCE} lates = 1 absence
-                  </p>
+                  <p className="mt-1 text-[10px] text-slate-500">Professor marked you late</p>
                 </button>
                 <button
                   type="button"
