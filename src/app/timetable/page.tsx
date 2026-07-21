@@ -7,9 +7,10 @@ import {
   formatDate,
   formatClassTimeRange,
   sortByStartTime,
+  toIstDateKey,
   toLocalDateKey,
 } from "@/lib/utils";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { CalendarClock, Pencil, Plus, Trash2, X } from "lucide-react";
 
 type Entry = {
   id: string;
@@ -18,8 +19,36 @@ type Entry = {
   endTime: string;
   room: string | null;
   faculty: string | null;
-  subject: { id?: string; name: string; code: string };
+  sessionNumber?: number | null;
+  subject: { id?: string; name: string; code: string; credits?: number };
 };
+
+function ordinal(n: number): string {
+  const rem10 = n % 10;
+  const rem100 = n % 100;
+  if (rem10 === 1 && rem100 !== 11) return `${n}st`;
+  if (rem10 === 2 && rem100 !== 12) return `${n}nd`;
+  if (rem10 === 3 && rem100 !== 13) return `${n}rd`;
+  return `${n}th`;
+}
+
+function SessionBadge({ sessionNumber }: { sessionNumber?: number | null }) {
+  if (!sessionNumber) return null;
+  return (
+    <span className="inline-block rounded-full bg-cyan-100 px-2 py-0.5 text-[10px] font-semibold text-cyan-800">
+      {ordinal(sessionNumber)} session
+    </span>
+  );
+}
+
+function CreditsTag({ credits }: { credits?: number }) {
+  if (!credits) return null;
+  return (
+    <span className="text-xs text-slate-500">
+      · {credits} {credits === 1 ? "credit" : "credits"}
+    </span>
+  );
+}
 
 type Subject = {
   id: string;
@@ -94,12 +123,30 @@ export default function TimetablePage() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [todayEntries, setTodayEntries] = useState<Entry[]>([]);
+  const [tomorrowEntries, setTomorrowEntries] = useState<Entry[]>([]);
+
+  const todayKey = toIstDateKey(new Date());
+  const tomorrowKey = toIstDateKey(new Date(Date.now() + 24 * 60 * 60 * 1000));
 
   const loadEntries = useCallback(() => {
     fetch(`/api/timetable?month=${month}`)
       .then((r) => r.json())
       .then((d) => setEntries(d.entries || []));
   }, [month]);
+
+  const loadUpcoming = useCallback(() => {
+    fetch(`/api/timetable?date=${todayKey}`)
+      .then((r) => r.json())
+      .then((d) => setTodayEntries(d.entries || []));
+    fetch(`/api/timetable?date=${tomorrowKey}`)
+      .then((r) => r.json())
+      .then((d) => setTomorrowEntries(d.entries || []));
+  }, [todayKey, tomorrowKey]);
+
+  useEffect(() => {
+    loadUpcoming();
+  }, [loadUpcoming]);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -168,6 +215,7 @@ export default function TimetablePage() {
 
       setModalOpen(false);
       loadEntries();
+      loadUpcoming();
       if (form.newSubject) {
         fetch("/api/timetable/subjects")
           .then((r) => r.json())
@@ -195,6 +243,39 @@ export default function TimetablePage() {
       return;
     }
     loadEntries();
+    loadUpcoming();
+  }
+
+  function UpcomingDayColumn({ label, dayEntries }: { label: string; dayEntries: Entry[] }) {
+    return (
+      <div className="min-w-0 rounded-xl bg-white/70 p-3">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-cyan-700">{label}</p>
+        {dayEntries.length === 0 ? (
+          <p className="text-sm text-slate-500">No classes. Breathe easy.</p>
+        ) : (
+          <div className="space-y-2">
+            {sortByStartTime(dayEntries).map((e) => (
+              <div key={e.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                  <p className="min-w-0 break-words text-sm font-medium text-slate-900">
+                    {e.subject.name} <CreditsTag credits={e.subject.credits} />
+                  </p>
+                  <span className="shrink-0 text-xs font-medium text-violet-700">
+                    {formatClassTimeRange(e.startTime, e.endTime)}
+                  </span>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <SessionBadge sessionNumber={e.sessionNumber} />
+                  <span className="text-xs text-slate-500">
+                    Prof. {e.faculty || "TBA"} · {e.room || "Room TBA"}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   }
 
   const grouped = entries.reduce<Record<string, Entry[]>>((acc, entry) => {
@@ -236,6 +317,20 @@ export default function TimetablePage() {
         </div>
       </div>
 
+      <div className="mb-5 rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-violet-50 p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <CalendarClock className="h-4 w-4 text-cyan-700" />
+          <h2 className="text-sm font-semibold text-slate-900">Up next — no scrolling needed</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <UpcomingDayColumn label={`Today · ${formatDate(todayKey)}`} dayEntries={todayEntries} />
+          <UpcomingDayColumn
+            label={`Tomorrow · ${formatDate(tomorrowKey)}`}
+            dayEntries={tomorrowEntries}
+          />
+        </div>
+      </div>
+
       {sortedDates.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center">
           <p className="text-slate-500">No timetable entries for this month.</p>
@@ -270,8 +365,13 @@ export default function TimetablePage() {
                       className="flex flex-col gap-2 rounded-xl bg-slate-50 px-3 py-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="break-words font-medium text-slate-900">{e.subject.name}</p>
-                        <p className="text-xs text-cyan-700">{e.subject.code}</p>
+                        <p className="break-words font-medium text-slate-900">
+                          {e.subject.name} <CreditsTag credits={e.subject.credits} />
+                        </p>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <p className="text-xs text-cyan-700">{e.subject.code}</p>
+                          <SessionBadge sessionNumber={e.sessionNumber} />
+                        </div>
                         <p className="text-xs text-slate-500">
                           Prof. {e.faculty || "TBA"} · {e.room || "Room TBA"}
                         </p>
