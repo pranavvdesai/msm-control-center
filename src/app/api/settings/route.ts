@@ -17,14 +17,18 @@ export async function PATCH(request: Request) {
   const settings = await prisma.appSettings.upsert({
     where: { id: 1 },
     update: {
-      crName: body.crName,
-      cohortName: body.cohortName,
-      cohortFull: body.cohortFull,
+      ...(body.crName != null && { crName: String(body.crName) }),
+      ...(body.crPhone != null && { crPhone: String(body.crPhone) }),
+      ...(body.cohortName != null && { cohortName: String(body.cohortName) }),
+      ...(body.cohortFull != null && { cohortFull: String(body.cohortFull) }),
+      ...(body.termInfo != null && { termInfo: String(body.termInfo) }),
     },
     create: {
       crName: body.crName || "TBD",
+      crPhone: body.crPhone || "8500780044",
       cohortName: body.cohortName || "MSM",
       cohortFull: body.cohortFull || "Marketing and Sales Management",
+      termInfo: body.termInfo || "Term 5 · TAPMI Manipal",
     },
   });
 

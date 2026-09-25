@@ -143,7 +143,7 @@ const WISHER_SPLASH_LINES_SINGLE = [
 const WISHER_SPLASH_LINES_MULTI = [
   "Several souls celebrate today — the batch grows brighter when we pause to wish them well.",
   "More than one candle burns in MSM today — lend each birthday friend a line of warmth.",
-  "Term 4 bends a little for birthdays — send a chorus of wishes before the timetable steals the joy.",
+  "Term 5 bends a little for birthdays — send a chorus of wishes before the timetable steals the joy.",
 ];
 
 export function buildWishFeedMessage(

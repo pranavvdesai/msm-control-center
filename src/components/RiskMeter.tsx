@@ -11,45 +11,45 @@ export function RiskMeter({ score }: { score: number }) {
       color: "from-emerald-500 to-cyan-500",
       label: "All Clear",
       message: "All is well. Attendance under control.",
-      glow: "shadow-emerald-500/20",
+      glow: "shadow-emerald-500/10",
     },
     caution: {
       color: "from-amber-500 to-yellow-500",
       label: "Caution Zone",
       message: "Ek aur leave… picture abhi baaki hai.",
-      glow: "shadow-amber-500/20",
+      glow: "shadow-amber-500/10",
     },
     warning: {
       color: "from-orange-500 to-red-500",
       label: "Danger Zone",
       message: "Faculty has started noticing your patterns.",
-      glow: "shadow-orange-500/20",
+      glow: "shadow-orange-500/10",
     },
     critical: {
       color: "from-red-600 to-rose-600",
       label: "Subgrade Mode",
       message: "Beta… ek aur leave liya toh problem hoga.",
-      glow: "shadow-red-500/30",
+      glow: "shadow-red-500/15",
     },
   };
 
   const c = config[level];
 
   return (
-    <div className={`rounded-2xl border border-white/10 bg-black/40 p-4 shadow-lg sm:p-5 ${c.glow}`}>
+    <div className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 ${c.glow}`}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1">
-          <p className="text-xs uppercase tracking-widest text-zinc-500">Attendance Health</p>
-          <p className="mt-1 text-lg font-black text-white sm:text-xl">{c.label}</p>
-          <p className="mt-2 text-sm text-zinc-400 sm:mt-3">{c.message}</p>
+          <p className="text-sm font-medium uppercase tracking-widest text-slate-500 sm:text-xs">Attendance Health</p>
+          <p className="mt-1 text-2xl font-black text-slate-900 sm:text-xl">{c.label}</p>
+          <p className="mt-2 text-base leading-relaxed text-slate-600 sm:mt-3 sm:text-sm">{c.message}</p>
         </div>
         <motion.div
-          className="relative mx-auto flex h-20 w-20 shrink-0 items-center justify-center sm:mx-0"
+          className="relative mx-auto flex h-24 w-24 shrink-0 items-center justify-center sm:mx-0 sm:h-20 sm:w-20"
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
           <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(15,23,42,0.08)" strokeWidth="8" />
             <motion.circle
               cx="50"
               cy="50"
@@ -70,7 +70,7 @@ export function RiskMeter({ score }: { score: number }) {
               </linearGradient>
             </defs>
           </svg>
-          <span className="absolute text-lg font-black text-white">{score}%</span>
+          <span className="absolute text-xl font-black text-slate-900 sm:text-lg">{score}%</span>
         </motion.div>
       </div>
     </div>

@@ -35,8 +35,10 @@ export default function AnalyticsPage() {
       setUserName(me.user?.name || "");
 
       const res = await fetch("/api/analytics");
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to load analytics");
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : null;
+      if (!res.ok) throw new Error(data?.error || "Failed to load analytics");
+
       setReport(data);
       setActiveDay((prev) => prev || data.dates?.[0] || "");
     } catch (e) {
@@ -62,9 +64,7 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <h1 className="msm-page-title">Analytics</h1>
-              <p className="msm-page-subtitle">
-                Tab visits · last {report?.lookbackDays ?? 5} days (IST) · Ram only
-              </p>
+              <p className="msm-page-subtitle">Tab visits · last 5 days (IST) · Ram only</p>
             </div>
           </div>
           <button
@@ -91,24 +91,9 @@ export default function AnalyticsPage() {
           <p className="mb-4 text-sm font-medium text-slate-600">{report.rangeLabel}</p>
 
           <div className="mb-6 grid gap-3 sm:grid-cols-3">
-            <SummaryCard
-              icon={MousePointerClick}
-              label="Total visits"
-              value={report.summary.totalVisits}
-              accent="from-cyan-500 to-blue-600"
-            />
-            <SummaryCard
-              icon={Users}
-              label="Unique visitors"
-              value={report.summary.uniqueVisitors}
-              accent="from-violet-500 to-purple-600"
-            />
-            <SummaryCard
-              icon={CalendarDays}
-              label="Days tracked"
-              value={report.lookbackDays}
-              accent="from-emerald-500 to-teal-600"
-            />
+            <SummaryCard icon={MousePointerClick} label="Total visits" value={report.summary.totalVisits} accent="from-cyan-500 to-blue-600" />
+            <SummaryCard icon={Users} label="Unique visitors" value={report.summary.uniqueVisitors} accent="from-violet-500 to-purple-600" />
+            <SummaryCard icon={CalendarDays} label="Days tracked" value={report.lookbackDays} accent="from-emerald-500 to-teal-600" />
           </div>
 
           <section className="mb-6 msm-card">

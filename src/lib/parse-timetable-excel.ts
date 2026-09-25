@@ -191,13 +191,18 @@ export function parseTimetableExcel(buffer: Buffer) {
     }
   }
 
-  const termInfo = rows
+  const durationLine = rows
     .map((r) => String(r[0] || ""))
     .find((t) => t.includes("Duration"));
+  const termTitle = rows
+    .map((r) => String(r[0] || ""))
+    .find((t) => /TERM\s*\d/i.test(t));
+
+  const termInfo = durationLine || termTitle || "";
 
   return {
     sheetName,
-    termInfo: termInfo || "",
+    termInfo,
     subjects,
     entries,
   };

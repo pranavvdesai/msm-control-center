@@ -23,7 +23,7 @@ function todayKey() {
 const BIRTHDAY_QUOTES = [
   "Another year bolder, another case study wiser — the cohort cheers for you today.",
   "May your GPA glow and your chai stay strong on this beautiful birthday morning.",
-  "Term 4 bends a little today — even attendance feels festive when you were born.",
+  "Term 5 bends a little today — even attendance feels festive when you were born.",
   "The universe drafted you into MSM for a reason; today we celebrate that plot twist.",
   "From G2 lectures to late-night submissions — you make the batch brighter, {firstName}.",
   "Birthdays at TAPMI hit different: cake, chaos, and classmates who actually show up.",
@@ -65,7 +65,7 @@ Ram and the batch send this poem your way —<br/>
 
     `Happy birthday, ${firstName} — listen close:<br/>
 You're the punchline we love and the friend we toast most.<br/>
-Through presentations, pressure, and Term 4 rain,<br/>
+Through presentations, pressure, and Term 5 rain,<br/>
 Your spirit keeps lifting us again and again.<br/><br/>
 So here’s a small verse from your cohort with care:<br/>
 Walk into this year with confidence to spare.<br/>
@@ -120,7 +120,7 @@ function classmatePoemsAbout(birthdayName: string, birthdayRoll: string): string
     `On ${fn}'s birthday, even attendance feels festive; find them, hug them, remind them they matter here.`,
     `${fn} turns the ordinary TAPMI morning into celebration — one genuine wish from you can make their whole day.`,
     `Roll ${birthdayRoll} belongs to someone we admire — ${fn} deserves cake, laughter, and a room full of cheer.`,
-    `Let’s flood ${fn} with birthday poetry today: they’ve been the calm in our chaos all Term 4 long.`,
+    `Let’s flood ${fn} with birthday poetry today: they’ve been the calm in our chaos all Term 5 long.`,
     `${fn} was born on a day the universe got clever — celebrate them loudly between classes and chai breaks.`,
     `Send ${fn} a wish as bright as their presence — birthdays like this are rare gifts for the whole cohort.`,
     `Today we honour ${fn}: student, friend, legend-in-progress — make sure they hear your voice in the chorus.`,
@@ -134,7 +134,7 @@ const CLASSMATE_QUOTES = [
   "Birthdays remind us: we’re not just a batch — we’re a little family with inside jokes and shared deadlines.",
   "One wish from you can turn someone’s whole day golden — don’t leave it unsaid.",
   "MSM runs on marketing minds and generous hearts — today, lead with the generous part.",
-  "Term 4 is tough; celebrating each other is how we keep the cohort human.",
+  "Term 5 is tough; celebrating each other is how we keep the cohort human.",
   "A birthday in class is the universe asking us to pause and be kind on purpose.",
   "Good friends don’t wait for reminders — they show up with smiles and stupid jokes.",
   "The best gift you can give today costs nothing: your time, your warmth, your attention.",
@@ -148,7 +148,7 @@ function wrapEmail(title: string, bodyHtml: string) {
       <h1 style="font-size: 26px; margin: 16px 0; line-height: 1.35;">${title}</h1>
       ${bodyHtml}
       <p style="font-family: system-ui, sans-serif; color: #52525b; font-size: 11px; margin-top: 32px;">
-        MSM Control Center · TAPMI Manipal · Term 4
+        MSM Control Center · TAPMI Manipal · Term 5
       </p>
     </div>
   `;

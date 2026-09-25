@@ -1,6 +1,7 @@
 import { prisma } from "./db";
 import { buildSubjectStats, getSubjectAlert } from "./alerts";
 import { sendEmail, isEmailConfigured } from "./email";
+import { MSM_EMAIL_FOOTER } from "./email-config";
 import { isExcludedSubject } from "./subjects";
 import { maxLeavesForCredits } from "./utils";
 
@@ -45,6 +46,7 @@ export function attendanceAlertEmailHtml(
       <p style="color: #71717a; font-size: 13px; margin-top: 24px;">
         MSM Control Center · TAPMI Manipal · Sent automatically when you hit 1 leave left.
       </p>
+      ${MSM_EMAIL_FOOTER}
     </div>
   `;
 }

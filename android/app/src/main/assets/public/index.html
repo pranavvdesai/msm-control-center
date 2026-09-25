@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#030014" />
+    <title>MSM Control Center</title>
+    <link rel="stylesheet" href="css/landing.css" />
+  </head>
+  <body>
+    <div class="bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="grid"></div>
+    </div>
+
+    <main class="screen">
+      <header class="top">
+        <p class="eyebrow">TAPMI · MANIPAL</p>
+        <div class="logo-ring">
+          <div class="logo-core" aria-label="MSM">MSM</div>
+        </div>
+        <h1>MSM Control Center</h1>
+        <p class="tagline">Attendance · Play · News · One cohort. One command deck.</p>
+      </header>
+
+      <section class="features" aria-label="Features">
+        <div class="chip" style="--d: 0.1s">
+          <span class="chip-icon">📊</span>
+          <div>
+            <strong>Attendance radar</strong>
+            <small>Leaves, risk meter, weekly mail</small>
+          </div>
+        </div>
+        <div class="chip" style="--d: 0.2s">
+          <span class="chip-icon">🎮</span>
+          <div>
+            <strong>Daily Play</strong>
+            <small>Sudoku, quiz &amp; leaderboards</small>
+          </div>
+        </div>
+        <div class="chip" style="--d: 0.3s">
+          <span class="chip-icon">📰</span>
+          <div>
+            <strong>World news</strong>
+            <small>Top headlines every morning</small>
+          </div>
+        </div>
+      </section>
+
+      <footer class="bottom">
+        <button type="button" class="enter-btn" id="enterBtn">
+          <span class="enter-label">Enter Control Center</span>
+          <span class="enter-sub">Tap to launch · Term 4 MSM</span>
+          <span class="ripple"></span>
+        </button>
+        <p class="credit">Built with love for the cohort — Ram &amp; team</p>
+      </footer>
+    </main>
+
+    <div class="loader" id="loader" hidden>
+      <div class="loader-ring"></div>
+      <p>Connecting to MSM servers…</p>
+    </div>
+
+    <script src="js/landing.js"></script>
+  </body>
+</html>

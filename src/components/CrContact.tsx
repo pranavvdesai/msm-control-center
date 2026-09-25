@@ -16,13 +16,13 @@ export function CrContact({
 
   return (
     <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-      <span className="text-xs text-zinc-500">
+      <span className="text-xs text-slate-500">
         Discrepancy or emergency? Contact CR
       </span>
       <div className="flex flex-wrap gap-2">
       <a
         href={tel}
-        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300"
+        className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700"
       >
         <Phone className="h-3 w-3" />
         Call
@@ -31,7 +31,7 @@ export function CrContact({
         href={whatsapp}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 rounded-lg border border-green-500/25 bg-green-500/10 px-2.5 py-1 text-[11px] font-medium text-green-300"
+        className="inline-flex items-center gap-1 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1 text-[11px] font-medium text-green-700"
       >
         <MessageCircle className="h-3 w-3" />
         WhatsApp

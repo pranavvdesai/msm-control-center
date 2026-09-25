@@ -29,7 +29,7 @@ export function Leaderboard({
           <Trophy className="h-5 w-5 text-amber-400" />
           <h2 className="font-semibold text-amber-200">Class Leaderboard</h2>
         </div>
-        <span className="text-xs text-zinc-500">By attendance score</span>
+        <span className="text-xs text-slate-500">By attendance score</span>
       </div>
 
       <div className="mb-4 grid grid-cols-3 gap-2">
@@ -40,7 +40,7 @@ export function Leaderboard({
 
       <div className="space-y-2">
         {entries.length === 0 ? (
-          <p className="text-sm text-zinc-500">No rankings yet. Be the first hero.</p>
+          <p className="text-sm text-slate-500">No rankings yet. Be the first hero.</p>
         ) : (
           entries.map((entry, i) => (
             <motion.div
@@ -50,21 +50,21 @@ export function Leaderboard({
               transition={{ delay: i * 0.05 }}
               className={`flex items-center gap-3 rounded-xl px-3 py-2 ${
                 entry.isYou
-                  ? "border border-cyan-500/40 bg-cyan-500/10"
-                  : "bg-black/30"
+                  ? "border border-cyan-500/40 bg-cyan-50"
+                  : "bg-slate-50"
               }`}
             >
               <span className="w-6 text-center text-lg">
                 {entry.rank <= 3 ? medals[entry.rank - 1] : `#${entry.rank}`}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="truncate font-medium text-white">
+                <p className="truncate font-medium text-slate-900">
                   {entry.name}
                   {entry.isYou && (
-                    <span className="ml-1 text-xs text-cyan-400">(You)</span>
+                    <span className="ml-1 text-xs text-cyan-700">(You)</span>
                   )}
                 </p>
-                <p className="text-[10px] text-zinc-500">
+                <p className="text-[10px] text-slate-500">
                   {entry.regular} regular · {entry.condoned} condoned
                 </p>
               </div>
@@ -72,7 +72,7 @@ export function Leaderboard({
                 <p
                   className={`text-sm font-bold ${
                     entry.attendanceScore >= 80
-                      ? "text-emerald-400"
+                      ? "text-emerald-700"
                       : entry.attendanceScore >= 50
                         ? "text-amber-400"
                         : "text-red-400"
@@ -99,10 +99,10 @@ function MiniStat({
   value: number;
 }) {
   return (
-    <div className="rounded-lg bg-black/30 px-2 py-2 text-center">
-      <Icon className="mx-auto h-3.5 w-3.5 text-zinc-500" />
-      <p className="mt-1 text-lg font-bold text-white">{value}</p>
-      <p className="text-[9px] uppercase text-zinc-600">{label}</p>
+    <div className="rounded-lg bg-slate-50 px-2 py-2 text-center">
+      <Icon className="mx-auto h-3.5 w-3.5 text-slate-500" />
+      <p className="mt-1 text-lg font-bold text-slate-900">{value}</p>
+      <p className="text-[9px] uppercase text-slate-500">{label}</p>
     </div>
   );
 }

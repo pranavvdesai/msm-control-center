@@ -5,6 +5,13 @@ import {
   buildBirthdayPersonEmail,
   buildClassmateBirthdayEmail,
 } from "@/lib/birthday-email-content";
+import {
+  MSM_EMAIL_ADDRESS,
+  MSM_EMAIL_FROM,
+  MSM_EMAIL_REPLY_TO,
+  MSM_EMAIL_FOOTER,
+} from "@/lib/email-config";
+import { sendEmailBatch } from "@/lib/email-batch";
 
 type BirthdayPerson = {
   name: string;
@@ -25,19 +32,35 @@ type WelcomePerson = {
 
 type SendResult = { ok: boolean; error?: string };
 
+let cachedTransporter: nodemailer.Transporter | null = null;
+
 function getFromAddress() {
-  return process.env.EMAIL_FROM || "Ram Pareek <raaaampareek@gmail.com>";
+  return process.env.EMAIL_FROM || MSM_EMAIL_FROM;
 }
 
 function getReplyTo() {
-  return process.env.EMAIL_REPLY_TO || "raaaampareek@gmail.com";
+  return process.env.EMAIL_REPLY_TO || MSM_EMAIL_REPLY_TO;
 }
 
 export function isEmailConfigured() {
-  return !!(
-    (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) ||
-    process.env.RESEND_API_KEY
-  );
+  return !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+}
+
+function getGmailTransporter() {
+  const user = process.env.GMAIL_USER || MSM_EMAIL_ADDRESS;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+  if (!pass) return null;
+
+  if (!cachedTransporter) {
+    cachedTransporter = nodemailer.createTransport({
+      service: "gmail",
+      pool: true,
+      maxConnections: 1,
+      maxMessages: 100,
+      auth: { user, pass },
+    });
+  }
+  return cachedTransporter;
 }
 
 async function gmailSend(
@@ -46,16 +69,10 @@ async function gmailSend(
   html: string,
   attachments?: nodemailer.SendMailOptions["attachments"]
 ): Promise<SendResult> {
-  const user = process.env.GMAIL_USER || "raaaampareek@gmail.com";
-  const pass = process.env.GMAIL_APP_PASSWORD;
-  if (!pass) {
+  const transporter = getGmailTransporter();
+  if (!transporter) {
     return { ok: false, error: "GMAIL_APP_PASSWORD not set" };
   }
-
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: { user, pass },
-  });
 
   try {
     await transporter.sendMail({
@@ -74,36 +91,16 @@ async function gmailSend(
   }
 }
 
-async function resendSend(
+export async function sendEmailWithResult(
   to: string,
   subject: string,
-  html: string
+  html: string,
+  attachments?: nodemailer.SendMailOptions["attachments"]
 ): Promise<SendResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return { ok: false, error: "RESEND_API_KEY not set" };
-
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: getFromAddress(),
-      to,
-      subject,
-      html,
-      reply_to: getReplyTo(),
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    console.error("Resend error:", body);
-    return { ok: false, error: body };
+  if (!process.env.GMAIL_APP_PASSWORD) {
+    return { ok: false, error: "GMAIL_APP_PASSWORD not set" };
   }
-
-  return { ok: true };
+  return gmailSend(to, subject, html, attachments);
 }
 
 export async function sendEmail(
@@ -112,18 +109,8 @@ export async function sendEmail(
   html: string,
   attachments?: nodemailer.SendMailOptions["attachments"]
 ) {
-  if (process.env.GMAIL_APP_PASSWORD) {
-    const gmail = await gmailSend(to, subject, html, attachments);
-    if (gmail.ok) return true;
-  }
-
-  if (process.env.RESEND_API_KEY) {
-    const resend = await resendSend(to, subject, html);
-    return resend.ok;
-  }
-
-  console.log("No email provider configured — skipping send");
-  return false;
+  const result = await sendEmailWithResult(to, subject, html, attachments);
+  return result.ok;
 }
 
 function welcomeEmailAttachments(): nodemailer.SendMailOptions["attachments"] {
@@ -195,8 +182,9 @@ function buildWelcomeEmailHtml(
         </a>
       </div>
       <p style="color: #52525b; font-size: 11px; margin-top: 32px;">
-        MSM Control Center · TAPMI Manipal · Term 4
+        MSM Control Center · TAPMI Manipal · Term 5
       </p>
+      ${MSM_EMAIL_FOOTER}
     </div>
   `;
 }
@@ -230,6 +218,8 @@ export async function sendBirthdayEmails(
   const birthdayRolls = new Set(birthdayPeople.map((p) => p.rollNumber.toUpperCase()));
 
   let sent = 0;
+  const payloads: Array<{ to: string; subject: string; html: string }> = [];
+
   for (const recipient of recipients) {
     const roll = recipient.rollNumber.toUpperCase();
     const isBirthdayPerson = birthdayRolls.has(roll);
@@ -240,8 +230,11 @@ export async function sendBirthdayEmails(
         ? buildBirthdayPersonEmail(birthdayPerson, subjectPrefix)
         : buildClassmateBirthdayEmail(birthdayPeople, recipient, subjectPrefix);
 
-    if (await sendEmail(recipient.email, subject, html)) sent++;
+    payloads.push({ to: recipient.email, subject, html });
   }
+
+  const batch = await sendEmailBatch(payloads);
+  sent = batch.sent;
 
   return { sent, skipped: false };
 }

@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   if (!isEmailConfigured()) {
     return NextResponse.json(
-      { error: "Email not configured on server (Gmail or Resend)." },
+      { error: "Email not configured — set GMAIL_APP_PASSWORD for msm.tapmi@gmail.com on Vercel." },
       { status: 503 }
     );
   }
@@ -117,7 +117,9 @@ export async function POST(request: Request) {
 
     if (type === "weekly") {
       const report = await buildUserLeaveReport(session.id);
-      const html = weeklyLeaveReportEmailHtml(firstName, report, appUrl);
+      const { getWeeklyPlatformChampion } = await import("@/lib/analytics/weekly-champion");
+      const champion = await getWeeklyPlatformChampion(appUrl);
+      const html = weeklyLeaveReportEmailHtml(firstName, report, appUrl, champion);
       const sent = await sendEmail(to, `[TEST] ${WEEKLY_LEAVE_REPORT_SUBJECT}`, html);
       if (!sent) {
         return NextResponse.json({ error: "Weekly test email failed to send." }, { status: 500 });

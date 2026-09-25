@@ -1,0 +1,6 @@
+android/
+.android-build/
+mobile/
+MSM-Control-Center.apk
+build-apk.log
+*.apk

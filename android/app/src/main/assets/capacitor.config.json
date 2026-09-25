@@ -1,0 +1,24 @@
+{
+	"appId": "in.tapmi.msm.controlcenter",
+	"appName": "MSM Control Center",
+	"webDir": "mobile/www",
+	"server": {
+		"url": "https://msm-control-center.vercel.app/mobile/",
+		"cleartext": false,
+		"androidScheme": "https",
+		"allowNavigation": [
+			"msm-control-center.vercel.app",
+			"*.vercel.app"
+		]
+	},
+	"android": {
+		"allowMixedContent": false,
+		"backgroundColor": "#030014"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0,
+			"backgroundColor": "#030014"
+		}
+	}
+}

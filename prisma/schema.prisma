@@ -93,7 +93,7 @@ model AppSettings {
   crPhone    String @default("8500780044")
   cohortName String @default("MSM")
   cohortFull String @default("Marketing and Sales Management")
-  termInfo   String @default("Term 4 · TAPMI Manipal")
+  termInfo   String @default("Term 5 · TAPMI Manipal")
 }
 
 model CalendarEvent {

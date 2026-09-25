@@ -22,7 +22,7 @@ const MONTHS = [
 ];
 
 const selectClass =
-  "w-full rounded-xl border border-white/10 bg-black/40 px-3 py-3 text-white outline-none focus:border-violet-500/50 appearance-none cursor-pointer";
+  "w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-900 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-200 appearance-none cursor-pointer";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -84,25 +84,25 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-[#030014] px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md rounded-3xl border border-violet-500/20 bg-white/[0.03] p-8 backdrop-blur-xl"
+        className="w-full max-w-md rounded-3xl border border-violet-200 bg-white p-8 shadow-lg"
       >
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/20">
-            <Cake className="h-6 w-6 text-violet-400" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100">
+            <Cake className="h-6 w-6 text-violet-600" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Complete Your Profile</h1>
-            <p className="text-sm text-zinc-500">One-time setup for MSM family features</p>
+            <h1 className="text-xl font-bold text-slate-900">Complete Your Profile</h1>
+            <p className="text-sm text-slate-500">One-time setup for MSM family features</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
-            <span className="mb-1.5 flex items-center gap-2 text-xs text-zinc-400">
+            <span className="mb-1.5 flex items-center gap-2 text-xs text-slate-600">
               <Mail className="h-3.5 w-3.5" /> TAPMI College Email
             </span>
             <input
@@ -111,12 +111,12 @@ export default function OnboardingPage() {
               onChange={(e) => setCollegeEmail(e.target.value)}
               placeholder="you@learner.manipal.edu"
               required
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none focus:border-violet-500/50"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-200"
             />
           </label>
 
           <fieldset>
-            <legend className="mb-1.5 flex items-center gap-2 text-xs text-zinc-400">
+            <legend className="mb-1.5 flex items-center gap-2 text-xs text-slate-600">
               <Cake className="h-3.5 w-3.5" /> Birthday
             </legend>
             <div className="grid grid-cols-3 gap-2">
@@ -127,11 +127,11 @@ export default function OnboardingPage() {
                 className={selectClass}
                 aria-label="Birth day"
               >
-                <option value="" className="bg-zinc-900">
+                <option value="" className="bg-white">
                   Day
                 </option>
                 {days.map((d) => (
-                  <option key={d} value={d} className="bg-zinc-900">
+                  <option key={d} value={d} className="bg-white">
                     {d}
                   </option>
                 ))}
@@ -146,11 +146,11 @@ export default function OnboardingPage() {
                 className={selectClass}
                 aria-label="Birth month"
               >
-                <option value="" className="bg-zinc-900">
+                <option value="" className="bg-white">
                   Month
                 </option>
                 {MONTHS.map((m) => (
-                  <option key={m.value} value={m.value} className="bg-zinc-900">
+                  <option key={m.value} value={m.value} className="bg-white">
                     {m.label}
                   </option>
                 ))}
@@ -162,11 +162,11 @@ export default function OnboardingPage() {
                 className={selectClass}
                 aria-label="Birth year"
               >
-                <option value="" className="bg-zinc-900">
+                <option value="" className="bg-white">
                   Year
                 </option>
                 {years.map((y) => (
-                  <option key={y} value={y} className="bg-zinc-900">
+                  <option key={y} value={y} className="bg-white">
                     {y}
                   </option>
                 ))}
@@ -174,16 +174,16 @@ export default function OnboardingPage() {
             </div>
           </fieldset>
 
-          <p className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3 text-xs leading-relaxed text-cyan-100/90">
+          <p className="rounded-xl border border-cyan-200 bg-cyan-50 p-3 text-xs leading-relaxed text-cyan-900">
             Please add your <strong>true college email</strong> and <strong>real birthday</strong>.
             We&apos;ll send you exclusive MSM birthday mailers and attendance alerts to this inbox.
           </p>
 
-          <p className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-relaxed text-amber-200/80">
+          <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900">
             On your birthday, the whole MSM cohort gets a fun birthday mailer. Everyone celebrates together!
           </p>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
           <GlowButton type="submit" className="w-full py-3" disabled={loading}>
             {loading ? "Saving..." : "Enter Control Center →"}

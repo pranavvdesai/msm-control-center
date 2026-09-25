@@ -31,7 +31,7 @@ export async function createSession(user: SessionUser) {
     role: user.role,
   })
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("30d")
+    .setExpirationTime("365d")
     .sign(secret);
 
   const cookieStore = await cookies();
@@ -40,7 +40,7 @@ export async function createSession(user: SessionUser) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: 60 * 60 * 24 * 365,
   });
 }
 

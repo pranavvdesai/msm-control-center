@@ -185,7 +185,7 @@ export default function DashboardPage() {
 
         <div className="min-w-0 pr-8 sm:pr-0">
           <p className="text-xs font-bold uppercase tracking-[0.15em] text-cyan-700 sm:text-xs sm:tracking-[0.3em]">
-            {data.settings?.termInfo || "Term 4 · TAPMI Manipal"}
+            {data.settings?.termInfo || "Term 5 · TAPMI Manipal"}
           </p>
           <h1 className="mt-2 text-2xl font-black leading-tight text-slate-900 sm:text-2xl md:text-4xl">
             MSM Control Center
@@ -278,7 +278,7 @@ export default function DashboardPage() {
             </h2>
             {data.subjectStats.length === 0 ? (
               <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-base text-amber-900 sm:text-sm">
-                No subjects loaded yet. Admin: upload TERM 4 MBA-MKT TT.xlsx from Upload TT tab.
+                No subjects loaded yet. Admin: upload the Term 5 timetable Excel from Upload TT tab.
               </p>
             ) : (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

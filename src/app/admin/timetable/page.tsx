@@ -78,7 +78,7 @@ export default function AdminTimetablePage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">Timetable Upload</h1>
         <p className="text-slate-600">
-          Upload monthly Excel timetables (e.g. TERM 4 MBA-MKT TT.xlsx). New uploads merge in — older months stay unless you choose full replace.
+          Upload monthly Excel timetables (e.g. TERM 5 MBA-MKT TT.xlsx). New uploads merge in — older months stay unless you choose full replace.
         </p>
       </div>
 
@@ -88,7 +88,7 @@ export default function AdminTimetablePage() {
           <div>
             <h2 className="font-semibold text-slate-900">Upload Excel Timetable</h2>
             <p className="text-sm text-slate-600">
-              Supports TAPMI format: TERM 4 MBA-MKT TT.xlsx
+              Supports TAPMI format: TERM 5 MBA-MKT TT.xlsx
             </p>
           </div>
         </div>

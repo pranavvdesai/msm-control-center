@@ -7,7 +7,15 @@ const secret = new TextEncoder().encode(
   process.env.JWT_SECRET || "msm-fallback-secret"
 );
 
-const publicPaths = ["/login", "/register", "/api/auth/login", "/api/auth/register"];
+const publicPaths = [
+  "/login",
+  "/register",
+  "/mobile",
+  "/awards",
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/cron",
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

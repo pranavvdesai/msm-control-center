@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { MSM_VAPID_SUBJECT } from "@/lib/email-config";
 
 export function isPushConfigured(): boolean {
   return !!(
@@ -11,7 +12,7 @@ export function isPushConfigured(): boolean {
 export function configureWebPush() {
   if (!isPushConfigured()) return false;
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || "mailto:raaaampareek@gmail.com",
+    process.env.VAPID_SUBJECT || MSM_VAPID_SUBJECT,
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
   );

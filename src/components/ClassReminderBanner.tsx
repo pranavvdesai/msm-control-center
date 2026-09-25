@@ -169,22 +169,22 @@ export function ClassReminderBanner({
         </Link>
       )}
 
-      <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-4">
+      <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex gap-3">
             {enabled && hasPush ? (
-              <Bell className="h-5 w-5 shrink-0 text-cyan-400" />
+              <Bell className="h-5 w-5 shrink-0 text-cyan-700" />
             ) : (
-              <BellOff className="h-5 w-5 shrink-0 text-zinc-500" />
+              <BellOff className="h-5 w-5 shrink-0 text-slate-500" />
             )}
             <div>
-              <p className="font-semibold text-white">Mobile notifications</p>
-              <p className="mt-1 text-sm text-zinc-400">
+              <p className="font-semibold text-slate-900">Mobile notifications</p>
+              <p className="mt-1 text-sm text-slate-600">
                 Evening phone alert: &quot;Did you miss any class? Record it now.&quot;
                 Push only — no emails.
               </p>
               {enabled && hasPush && (
-                <p className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
+                <p className="mt-1 flex items-center gap-1 text-xs text-emerald-700">
                   <Smartphone className="h-3 w-3" />
                   Connected on this device
                 </p>
@@ -216,15 +216,15 @@ export function ClassReminderBanner({
             </GlowButton>
           </div>
         </div>
-        {message && <p className="mt-2 text-xs text-cyan-300">{message}</p>}
+        {message && <p className="mt-2 text-xs text-cyan-700">{message}</p>}
         {isIos && !enabled && (
-          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+          <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
             iPhone: Safari → Share → <strong>Add to Home Screen</strong> → open the app
             from that icon → then enable notifications.
           </p>
         )}
         {!isIos && !enabled && (
-          <p className="mt-2 text-[11px] text-zinc-500">
+          <p className="mt-2 text-[11px] text-slate-500">
             Use Chrome. If enable fails, tap the lock icon → Site settings → allow Notifications.
           </p>
         )}

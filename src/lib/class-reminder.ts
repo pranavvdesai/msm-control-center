@@ -1,3 +1,4 @@
+import { MSM_EMAIL_FOOTER } from "@/lib/email-config";
 import { timeToMinutes } from "./utils";
 
 export function nowMinutesIST(): number {
@@ -48,6 +49,7 @@ export function classReminderEmailHtml(firstName: string, appUrl: string) {
       <p style="color: #71717a; font-size: 13px; margin-top: 24px;">
         You can turn off daily reminders from your MSM Control Center dashboard.
       </p>
+      ${MSM_EMAIL_FOOTER}
     </div>
   `;
 }

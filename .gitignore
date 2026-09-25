@@ -1,4 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+﻿# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /node_modules
@@ -32,12 +32,7 @@ yarn-error.log*
 
 # env files
 .env
-.env.local
-.env.production
-.env.production.local
-.env.deploy
-.env.prod
-.env.vercel
+.env.*
 !.env.example
 
 # vercel
@@ -52,4 +47,20 @@ prisma/*.db-journal
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# local / generated build junk
+.android-build/
+*.apk
+build-apk.log
+supabase/.temp/
+
+# stray local media dumps
+/WhatsApp Image*.jpeg
+/WhatsApp Image*.jpg
+
+# Android local machine config / build outputs
+android/local.properties
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/capacitor-cordova-android-plugins/build/

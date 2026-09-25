@@ -13,7 +13,7 @@ export function GlowButton({
   const variants = {
     primary:
       "bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg shadow-cyan-500/20 hover:brightness-110",
-    secondary: "border border-white/15 bg-white/5 text-white hover:bg-white/10",
+    secondary: "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50",
     danger: "bg-red-600/80 text-white hover:bg-red-600",
   };
 

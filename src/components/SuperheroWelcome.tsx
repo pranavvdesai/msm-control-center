@@ -13,7 +13,7 @@ export function SuperheroWelcome({ name }: { name: string }) {
   }, [router]);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#030014]">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50">
       <motion.div
         className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(34,211,238,0.25),_transparent_55%)]"
         animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.8, 0.4] }}
@@ -38,7 +38,7 @@ export function SuperheroWelcome({ name }: { name: string }) {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="mb-2 text-sm uppercase tracking-[0.5em] text-cyan-400"
+          className="mb-2 text-sm uppercase tracking-[0.5em] text-cyan-700"
         >
           MSM Protocol Activated
         </motion.p>
@@ -56,7 +56,7 @@ export function SuperheroWelcome({ name }: { name: string }) {
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-4 text-3xl font-bold text-white md:text-4xl"
+          className="mt-4 text-3xl font-bold text-slate-900 md:text-4xl"
         >
           {name}
         </motion.h2>
@@ -64,7 +64,7 @@ export function SuperheroWelcome({ name }: { name: string }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
-          className="mt-6 text-zinc-400"
+          className="mt-6 text-slate-600"
         >
           Suiting up for attendance intelligence...
         </motion.p>

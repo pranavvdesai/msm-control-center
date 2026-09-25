@@ -39,7 +39,7 @@ async function main() {
       crPhone: "8500780044",
       cohortName: "MSM",
       cohortFull: "Marketing and Sales Management",
-      termInfo: "Term 4 · June 15 – Sep 23, 2026 · TAPMI Manipal",
+      termInfo: "Term 5 · Sep 26, 2026 onwards · TAPMI Manipal",
     },
   });
 

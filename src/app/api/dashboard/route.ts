@@ -90,7 +90,7 @@ export async function GET() {
           crPhone: CR_PHONE,
           cohortName: "MSM",
           cohortFull: "Marketing and Sales Management",
-          termInfo: "Term 4 · TAPMI Manipal",
+          termInfo: "Term 5 · TAPMI Manipal",
         },
     subjectStats,
     todayClasses,

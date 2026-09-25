@@ -69,14 +69,25 @@ export async function POST(request: Request) {
         update: {
           name: subject.name,
           credits: subject.credits,
+          faculty: subject.faculty,
         },
         create: {
           code: subject.code,
           name: subject.name,
           credits: subject.credits,
+          faculty: subject.faculty,
         },
       });
       subjectsCreated++;
+    }
+
+    let subjectsPruned = 0;
+    if (replaceAll) {
+      const keepCodes = parsed.subjects.map((s) => s.code);
+      const pruned = await prisma.subject.deleteMany({
+        where: { code: { notIn: keepCodes } },
+      });
+      subjectsPruned = pruned.count;
     }
 
     const dbSubjects = await prisma.subject.findMany();
@@ -102,11 +113,27 @@ export async function POST(request: Request) {
       created++;
     }
 
+    const termInfo =
+      parsed.termInfo?.trim() ||
+      `Term 5 · TAPMI Manipal`;
+
+    await prisma.appSettings.upsert({
+      where: { id: 1 },
+      update: { termInfo },
+      create: {
+        crName: "Tipparaju Venkata Sai Bhavyasri",
+        crPhone: "8500780044",
+        cohortName: "MSM",
+        cohortFull: "Marketing and Sales Management",
+        termInfo,
+      },
+    });
+
     await prisma.activityEvent.create({
       data: {
         userId: session.id,
         message: replaceAll
-          ? `Full timetable replaced from ${file.name} — ${created} lectures loaded.`
+          ? `Full timetable replaced from ${file.name} — ${created} lectures loaded${subjectsPruned ? `, ${subjectsPruned} old subjects removed` : ""}.`
           : `Timetable updated for ${uploadDates.length} day(s) from ${file.name}. ${created} lectures loaded — older months kept.`,
         type: "admin",
       },
@@ -115,7 +142,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       created,
       subjects: subjectsCreated,
-      termInfo: parsed.termInfo,
+      subjectsPruned,
+      termInfo,
       preview: parsed.entries.slice(0, 5),
       replacedDates: uploadDates.length,
       replaceAll,

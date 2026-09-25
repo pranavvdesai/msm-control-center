@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { NavShell } from "@/components/NavShell";
+import { AdminDailyOps } from "@/components/AdminDailyOps";
 import { GlowButton } from "@/components/GlowButton";
 import { Mail, Cake, CalendarDays, Clock, Loader2, Bell } from "lucide-react";
 
@@ -70,7 +71,7 @@ export default function AdminPage() {
   if (!canAdmin) {
     return (
       <NavShell>
-        <div className="flex h-64 items-center justify-center text-zinc-500">Loading...</div>
+        <div className="flex h-64 items-center justify-center text-slate-500">Loading...</div>
       </NavShell>
     );
   }
@@ -110,42 +111,37 @@ export default function AdminPage() {
   return (
     <NavShell userName={userName} canAdmin canUpload={canUpload} isAdmin>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Admin</h1>
-        <p className="text-zinc-400">Ram-only tools — test emails and maintain the timetable.</p>
+        <h1 className="text-2xl font-bold text-slate-900">Admin</h1>
+        <p className="text-slate-600">Ram-only tools — automated tasks, test emails, and timetable fixes.</p>
       </div>
 
       {message && (
-        <p className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+        <p className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           {message}
         </p>
       )}
       {error && (
-        <p className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
       )}
 
+      <AdminDailyOps onError={setError} onMessage={setMessage} />
+
       <section className="mb-8">
-        <h2 className="mb-3 text-lg font-semibold text-white">Email testing</h2>
-        <p className="mb-4 text-sm text-zinc-500">
+        <h2 className="mb-3 text-lg font-semibold text-slate-900">Email testing</h2>
+        <p className="mb-4 text-sm text-slate-500">
           Each button sends a sample to your profile email right away. Subjects are prefixed with [TEST].
         </p>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {emailTests.map(({ type, title, description, icon: Icon }) => (
-            <div
-              key={type}
-              className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.02] p-4"
-            >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10">
-                <Icon className="h-5 w-5 text-cyan-400" />
+            <div key={type} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50">
+                <Icon className="h-5 w-5 text-cyan-700" />
               </div>
-              <h3 className="font-semibold text-white">{title}</h3>
-              <p className="mt-1 mb-4 flex-1 text-sm text-zinc-500">{description}</p>
-              <GlowButton
-                className="w-full"
-                disabled={loading !== null}
-                onClick={() => sendTestEmail(type)}
-              >
+              <h3 className="font-semibold text-slate-900">{title}</h3>
+              <p className="mt-1 mb-4 flex-1 text-sm text-slate-500">{description}</p>
+              <GlowButton className="w-full" disabled={loading !== null} onClick={() => sendTestEmail(type)}>
                 {loading === type ? (
                   <span className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -160,14 +156,14 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <section className="mb-8 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+      <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
-              <Clock className="h-5 w-5 text-violet-400" />
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+              <Clock className="h-5 w-5 text-violet-700" />
               Fix timetable order
             </h2>
-            <p className="mt-1 max-w-xl text-sm text-zinc-500">
+            <p className="mt-1 max-w-xl text-sm text-slate-500">
               Re-normalize all class times with AM/PM so the earliest class of the day appears first everywhere.
             </p>
           </div>

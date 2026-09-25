@@ -64,9 +64,9 @@ export default function CakeRadarPage() {
 
   return (
     <NavShell userName={userName} isAdmin={isAdmin} canAdmin={canAdmin}>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">🎂 Cake Radar</h1>
-        <p className="text-zinc-400">
+      <div className="msm-page-header">
+        <h1 className="msm-page-title">🎂 Cake Radar</h1>
+        <p className="msm-page-subtitle">
           MSM birthday intelligence — another trip around the sun, another reason to celebrate.
         </p>
       </div>
@@ -77,8 +77,8 @@ export default function CakeRadarPage() {
           className={cn(
             "rounded-xl px-4 py-2 text-sm font-medium transition",
             tab === "month"
-              ? "bg-pink-500/20 text-pink-200 ring-1 ring-pink-500/40"
-              : "border border-white/10 text-zinc-400"
+              ? "bg-pink-100 text-pink-800 ring-1 ring-pink-300"
+              : "border border-slate-200 text-slate-600"
           )}
         >
           This Month&apos;s Birthdays
@@ -88,8 +88,8 @@ export default function CakeRadarPage() {
           className={cn(
             "rounded-xl px-4 py-2 text-sm font-medium transition",
             tab === "calendar"
-              ? "bg-pink-500/20 text-pink-200 ring-1 ring-pink-500/40"
-              : "border border-white/10 text-zinc-400"
+              ? "bg-pink-100 text-pink-800 ring-1 ring-pink-300"
+              : "border border-slate-200 text-slate-600"
           )}
         >
           Birthday Calendar
@@ -102,22 +102,22 @@ export default function CakeRadarPage() {
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="mb-4 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            className="mb-4 rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900"
           />
           {monthBirthdays.length === 0 ? (
-            <p className="text-zinc-500">No birthdays this month yet — complete your profile!</p>
+            <p className="text-slate-500">No birthdays this month yet — complete your profile!</p>
           ) : (
             <div className="space-y-2">
               {monthBirthdays.map((b) => (
                 <div
                   key={b.rollNumber}
-                  className="flex items-center justify-between rounded-xl border border-pink-500/20 bg-pink-500/5 px-4 py-3"
+                  className="flex items-center justify-between rounded-xl border border-pink-200 bg-pink-500/5 px-4 py-3"
                 >
                   <div>
-                    <p className="font-medium text-white">{b.name}</p>
-                    <p className="text-xs text-zinc-500">{b.rollNumber}</p>
+                    <p className="font-medium text-slate-900">{b.name}</p>
+                    <p className="text-xs text-slate-500">{b.rollNumber}</p>
                   </div>
-                  <span className="text-sm text-pink-300">
+                  <span className="text-sm text-pink-700">
                     🎂 {b.day} {MONTH_NAMES[b.month - 1]}
                   </span>
                 </div>
@@ -132,20 +132,20 @@ export default function CakeRadarPage() {
           <div className="mb-4 flex items-center justify-between">
             <button
               onClick={() => setCalMonth((m) => (m === 0 ? 11 : m - 1))}
-              className="rounded-lg border border-white/10 px-3 py-1 text-sm text-zinc-400"
+              className="rounded-lg border border-slate-200 px-3 py-1 text-sm text-slate-600"
             >
               ←
             </button>
-            <h2 className="font-semibold text-white">{MONTH_NAMES[calMonth]} {year}</h2>
+            <h2 className="font-semibold text-slate-900">{MONTH_NAMES[calMonth]} {year}</h2>
             <button
               onClick={() => setCalMonth((m) => (m === 11 ? 0 : m + 1))}
-              className="rounded-lg border border-white/10 px-3 py-1 text-sm text-zinc-400"
+              className="rounded-lg border border-slate-200 px-3 py-1 text-sm text-slate-600"
             >
               →
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-zinc-500">
+          <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-slate-500">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
               <div key={d} className="py-1 font-medium">{d}</div>
             ))}
@@ -161,15 +161,15 @@ export default function CakeRadarPage() {
                   className={cn(
                     "min-h-[4.5rem] rounded-lg border p-1 text-left",
                     bdays.length > 0
-                      ? "border-pink-500/40 bg-pink-500/10"
-                      : "border-white/5 bg-black/20"
+                      ? "border-pink-300 bg-pink-50"
+                      : "border-slate-100 bg-slate-50"
                   )}
                 >
-                  <span className="text-xs text-zinc-400">{day}</span>
+                  <span className="text-xs text-slate-600">{day}</span>
                   {bdays.map((b) => (
                     <p
                       key={b.rollNumber}
-                      className="mt-0.5 truncate text-[9px] font-medium text-pink-200"
+                      className="mt-0.5 truncate text-[9px] font-medium text-pink-800"
                       title={b.name}
                     >
                       {b.firstName}&apos;s day

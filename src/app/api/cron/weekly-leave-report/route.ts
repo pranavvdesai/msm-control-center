@@ -1,45 +1,33 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { sendEmail, isEmailConfigured } from "@/lib/email";
-import {
-  buildUserLeaveReport,
-  weeklyLeaveReportEmailHtml,
-  WEEKLY_LEAVE_REPORT_SUBJECT,
-} from "@/lib/weekly-leave-report";
+import { cronAuthorized, cronUnauthorizedResponse } from "@/lib/cron-auth";
+import { isEmailConfigured } from "@/lib/email";
+import { sendWeeklyLeaveReportBatch } from "@/lib/ops/send-weekly-leave";
+import { getIstDateString } from "@/lib/play/ist-date";
+import { isSaturdayIst } from "@/lib/ops/ist-calendar";
 
-function cronAuthorized(request: Request): boolean {
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) return true;
-  return request.headers.get("authorization") === `Bearer ${cronSecret}`;
-}
+export const maxDuration = 300;
 
 export async function GET(request: Request) {
-  if (!cronAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!cronAuthorized(request)) return cronUnauthorizedResponse();
 
   if (!isEmailConfigured()) {
     return NextResponse.json({ error: "Email not configured" }, { status: 503 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://msm-control-center.vercel.app";
-  const users = await prisma.user.findMany({
-    where: { profileComplete: true, collegeEmail: { not: null } },
-    select: { id: true, name: true, collegeEmail: true },
-  });
+  const url = new URL(request.url);
+  const force = url.searchParams.get("force") === "1";
+  const istDate = url.searchParams.get("istDate") || getIstDateString();
 
-  let sent = 0;
-  let failed = 0;
-
-  for (const user of users) {
-    if (!user.collegeEmail) continue;
-    const report = await buildUserLeaveReport(user.id);
-    const firstName = user.name.split(" ")[0];
-    const html = weeklyLeaveReportEmailHtml(firstName, report, appUrl);
-    const ok = await sendEmail(user.collegeEmail, WEEKLY_LEAVE_REPORT_SUBJECT, html);
-    if (ok) sent++;
-    else failed++;
+  if (!url.searchParams.get("istDate") && !isSaturdayIst(istDate)) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Weekly leave report runs on Saturday IST. Use ?istDate=YYYY-MM-DD&force=1 for catch-up.",
+      },
+      { status: 400 }
+    );
   }
 
-  return NextResponse.json({ ok: true, users: users.length, sent, failed });
+  const result = await sendWeeklyLeaveReportBatch(istDate, { force });
+  return NextResponse.json(result);
 }

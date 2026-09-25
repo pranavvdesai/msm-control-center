@@ -12,7 +12,7 @@ function WelcomeContent() {
 
 export default function WelcomePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#030014]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
       <WelcomeContent />
     </Suspense>
   );
