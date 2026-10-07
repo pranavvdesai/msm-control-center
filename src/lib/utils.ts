@@ -40,6 +40,14 @@ export function formatDate(date: Date | string) {
   });
 }
 
+export function formatTimeOfDay(date: Date | string) {
+  return new Date(date).toLocaleTimeString("en-IN", {
+    timeZone: IST,
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 export function toDateKey(date: Date | string) {
   const d = new Date(date);
   return d.toISOString().slice(0, 10);
