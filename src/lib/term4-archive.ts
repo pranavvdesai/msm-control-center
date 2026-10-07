@@ -30,6 +30,51 @@ function parseLeaveFeedMessage(message: string) {
   return null;
 }
 
+/** Full Term 4 leaves (with class date and reason) recovered from a student's browser cache. */
+export type Term4RecoveredLeave = {
+  id: string;
+  classDate: string;
+  subjectName: string;
+  type: LeaveType;
+  reason: string | null;
+  startTime: string | null;
+  endTime: string | null;
+};
+
+/** Stored as one JSON activity event per user; this type is not in the live feed list. */
+const RECOVERY_EVENT_TYPE = "term4_recovery";
+
+export async function getTerm4RecoveredLeaves(userId: string): Promise<Term4RecoveredLeave[]> {
+  const event = await prisma.activityEvent.findFirst({
+    where: { userId, type: RECOVERY_EVENT_TYPE },
+    orderBy: { createdAt: "desc" },
+    select: { message: true },
+  });
+  if (!event) return [];
+  try {
+    return JSON.parse(event.message) as Term4RecoveredLeave[];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveTerm4RecoveredLeaves(
+  userId: string,
+  incoming: Term4RecoveredLeave[]
+): Promise<Term4RecoveredLeave[]> {
+  const merged = new Map((await getTerm4RecoveredLeaves(userId)).map((l) => [l.id, l]));
+  for (const leave of incoming) merged.set(leave.id, leave);
+  const leaves = [...merged.values()].sort((a, b) => b.classDate.localeCompare(a.classDate));
+
+  await prisma.$transaction([
+    prisma.activityEvent.deleteMany({ where: { userId, type: RECOVERY_EVENT_TYPE } }),
+    prisma.activityEvent.create({
+      data: { userId, type: RECOVERY_EVENT_TYPE, message: JSON.stringify(leaves) },
+    }),
+  ]);
+  return leaves;
+}
+
 export async function getTerm4ArchivedLeaves(userId: string): Promise<Term4ArchivedLeave[]> {
   const events = await prisma.activityEvent.findMany({
     where: {
